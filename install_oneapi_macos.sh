@@ -3,7 +3,7 @@
 # See https://github.com/oneapi-src/oneapi-ci
 # https://github.com/oneapi-src/oneapi-ci/blob/master/scripts/install_macos.sh
 #
-# Usage: sudo bash install_oneapi_macos.sh
+# Usage: bash install_oneapi_macos.sh
 #
 # Zaikun Zhang (www.zhangzk.net), January 9, 2023
 
@@ -29,7 +29,7 @@ curl --output webimage.dmg --url "$URL" --retry 5 --retry-delay 5
 hdiutil attach webimage.dmg
 
 # Install the compiler.
-/Volumes/"$(basename "$URL" .dmg)"/bootstrapper.app/Contents/MacOS/bootstrapper -s --action install --components="$COMPONENTS" --eula=accept --log-dir=.
+sudo /Volumes/"$(basename "$URL" .dmg)"/bootstrapper.app/Contents/MacOS/bootstrapper -s --action install --components="$COMPONENTS" --eula=accept --log-dir=.
 installer_exit_code=$?
 
 # Run the script that sets the environment variables.

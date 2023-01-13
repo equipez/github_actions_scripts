@@ -1,6 +1,6 @@
 #!/bin/bash
 # This script installs the Fortran compilers provided in Intel OneAPI.
-# Usage: sudo bash install_oneapi_linux.sh
+# Usage: bash install_oneapi_linux.sh
 
 # do the job in the temporary directory of the system
 cd /tmp || exit 42
@@ -9,17 +9,17 @@ cd /tmp || exit 42
 wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
 
 # add to your apt sources keyring so that archives signed with this key will be trusted.
-apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
 
 # optionally, remove the public key
 rm GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
 
 # the installation
-echo "deb https://apt.repos.intel.com/oneapi all main" | tee /etc/apt/sources.list.d/oneAPI.list
-add-apt-repository "deb https://apt.repos.intel.com/oneapi all main"
-apt-get update
-#apt install intel-basekit intel-hpckit  # Instead of this line, the following line seems to suffice
-apt-get install -y intel-oneapi-common-vars intel-oneapi-compiler-fortran
+echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
+sudo add-apt-repository "deb https://apt.repos.intel.com/oneapi all main"
+sudo apt-get update
+#sudo apt install intel-basekit intel-hpckit  # Instead of this line, the following line seems to suffice
+sudo apt-get install -y intel-oneapi-common-vars intel-oneapi-compiler-fortran
 installer_exit_code=$?
 
 # Run the script that sets the environment variables.
