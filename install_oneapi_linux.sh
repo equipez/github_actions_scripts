@@ -17,9 +17,9 @@ rm GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
 # the installation
 echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
 sudo add-apt-repository "deb https://apt.repos.intel.com/oneapi all main"
-sudo apt-get update
+sudo apt update
 #sudo apt install intel-basekit intel-hpckit  # Instead of this line, the following line seems to suffice
-sudo apt-get install -y intel-oneapi-common-vars intel-oneapi-compiler-fortran
+sudo apt install -y intel-oneapi-common-vars intel-oneapi-compiler-fortran
 installer_exit_code=$?
 
 # Run the script that sets the environment variables.
