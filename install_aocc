@@ -1,7 +1,5 @@
 #!/bin/bash
 # Usage: bash install_aocc
-# N.B.: Remember to run the following before using AOCC flang:
-# source /tmp/setenv.sh
 
 cd /tmp || exit 42
 
@@ -11,7 +9,4 @@ sudo apt install /tmp/aocc.deb
 
 SETENVSH="$(find /opt/AMD/ -name "*setenv*.sh" -type f -print | sort | tail -n 1)"
 
-cp "$SETENVSH" /tmp/setenv.sh
-
-printf "\n\n*** Remember to run the following before using AOCC flang:\n"
-printf "\n    source %s\n\n" "$SETENVSH"
+cat "$SETENVSH" >> "$GITHUB_ENV"
