@@ -10,10 +10,7 @@ sudo apt install gettext -y  # Provides envsubst
 
 SETENVSH="$(find /opt/AMD/ -name "*setenv*.sh" -type f -print | sort | tail -n 1)"
 
-# As of AOCC 4.0.0, $SETENVSH contains nothing but the settings of environment variables, as
-# indicated by its name (setenv_AOCC.sh). The following line appends theses settings to $GITHUB_ENV,
-# so that they are available to subsequent steps. Note that we have to remove the shebang, i.e.,
-# the #!/bin/bash line, or it will destroy $GITHUB_ENV. We also have to expand all the variables in
-# $SETENVSH by `envsubst`, or $GITHUB_ENV will not work correctly. We must also remove the 'export',
-# but this has to be done after `envsubst`, which needs the `export` to work correctly.
-sed '/^#.*/d' "$SETENVSH" | envsubst | sed 's|^export ||g' >> "$GITHUB_ENV"
+# Run the AOCC script that sets the necessary environment variables and then damp them to
+# $GITHUB_ENV so that they are available in subsequent steps.
+source "$SETENVSH"
+env >> "$GITHUB_ENV"
