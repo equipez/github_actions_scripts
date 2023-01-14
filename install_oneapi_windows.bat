@@ -33,7 +33,8 @@ set installer_exit_code=%ERRORLEVEL%
 :: Run the script that sets the necessary environment variables and then damp them to $GITHUB_ENV
 :: so that they are available in subsequent steps.
 call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
-set | grep -i 'intel\|oneapi' >> %GITHUB_ENV%
+set | grep -i "intel" >> %GITHUB_ENV%
+set | grep -i "oneapi" >> %GITHUB_ENV%
 
 :: Show the result of the installation.
 echo The path to ifort is:
