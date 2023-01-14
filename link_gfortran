@@ -1,5 +1,6 @@
 #!/usr/bin/bash
 # This script installs the requested version of gfortran and links it to /usr/bin/gfortran
+#
 # Usage: bash link_gfortran
 
 if [[ $# -lt 1 ]]; then
