@@ -9,4 +9,4 @@ sudo apt install /tmp/aocc.deb
 
 SETENVSH="$(find /opt/AMD/ -name "*setenv*.sh" -type f -print | sort | tail -n 1)"
 
-cat "$SETENVSH" >> "$GITHUB_ENV"
+sed '/^#.*/d' "$SETENVSH" >> "$GITHUB_ENV"
