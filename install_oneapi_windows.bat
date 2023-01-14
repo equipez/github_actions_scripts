@@ -3,6 +3,7 @@
 :: https://github.com/oneapi-src/oneapi-ci/blob/master/scripts/install_windows.bat
 ::
 :: Usage: cmd.exe "/K" '"install_oneapi_windows.bat"'
+:: N.B.: This is a cmd script, which may not work in PowerShell.
 ::
 :: Zaikun Zhang (www.zhangzk.net), January 9, 2023
 
@@ -29,8 +30,10 @@ start /b /wait webimage.exe -s -x -f webimage_extracted --log extract.log
 webimage_extracted\bootstrapper.exe -s --action install --components=%COMPONENTS% --eula=accept -p=NEED_VS2017_INTEGRATION=0 -p=NEED_VS2019_INTEGRATION=0 -p=NEED_VS2022_INTEGRATION=0 --log-dir=.
 set installer_exit_code=%ERRORLEVEL%
 
-:: Run the script that sets the environment variables.
+:: Run the script that sets the necessary environment variables and then damp them to $GITHUB_ENV
+:: so that they are available in subsequent steps.
 call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"
+set | grep -i 'intel\|oneapi' >> %GITHUB_ENV%
 
 :: Show the result of the installation.
 echo The path to ifort is:

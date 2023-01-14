@@ -32,8 +32,14 @@ hdiutil attach webimage.dmg
 sudo /Volumes/"$(basename "$URL" .dmg)"/bootstrapper.app/Contents/MacOS/bootstrapper -s --action install --components="$COMPONENTS" --eula=accept --log-dir=.
 installer_exit_code=$?
 
-# Run the script that sets the environment variables.
-source /opt/intel/oneapi/setvars.sh
+# Run the script that sets the necessary environment variables and then damp them to $GITHUB_ENV
+# so that they are available in subsequent steps.
+if [[ -f /opt/intel/oneapi/setvars.sh ]] ; then
+    source /opt/intel/oneapi/setvars.sh
+    env | grep -i 'intel\|oneapi' >> "$GITHUB_ENV"
+else
+    exit 1
+fi
 
 # Show the result of the installation.
 echo "The latest ifort installed is:"
