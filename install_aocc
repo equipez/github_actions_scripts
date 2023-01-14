@@ -6,11 +6,13 @@ cd /tmp || exit 42
 wget "https://www.dropbox.com/s/5xxfpr0tx8kn0o1/aocc-compiler-4.0.0_1_amd64.deb" -O aocc.deb
 
 sudo apt install /tmp/aocc.deb
+sudo apt install gettext -y  # Provides envsubset
 
 SETENVSH="$(find /opt/AMD/ -name "*setenv*.sh" -type f -print | sort | tail -n 1)"
 
 # As of AOCC 4.0.0, $SETENVSH contains nothing but the settings of environment variables, as
 # indicated by its name (setenv_AOCC.sh). The following line appends theses settings to $GITHUB_ENV,
 # so that they are available to subsequent steps. Note that we have to remove the shebang, i.e.,
-# the #!/bin/bash line, and the "export", or it will destroy $GITHUB_ENV.
-sed '/^#.*/d' "$SETENVSH" | sed 's|^export\s*||g' >> "$GITHUB_ENV"
+# the #!/bin/bash line, or it will destroy $GITHUB_ENV. We also have to expand all the variables in
+# $SETENVSH by `envsubset`, or $GITHUB_ENV will not work correctly.
+sed '/^#.*/d' "$SETENVSH" | envsubset >> "$GITHUB_ENV"
