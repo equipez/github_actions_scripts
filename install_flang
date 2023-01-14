@@ -10,5 +10,5 @@ wget "https://www.dropbox.com/s/myhdi239myw1tsi/flang.7z"
 
 # Set environment variable for subsequent steps
 # N.B.: The following lines will not work if this script is invoked with sudo.
-echo "PATH='$PATH':/tmp/flang/bin" >> "$GITHUB_ENV"
-echo "LD_LIBRARY_PATH='$LD_LIBRARY_PATH':/tmp/flang/lib" >> "$GITHUB_ENV"
+echo PATH='$PATH':/tmp/flang/bin >> "$GITHUB_ENV"
+echo LD_LIBRARY_PATH='$LD_LIBRARY_PATH':/tmp/flang/lib >> "$GITHUB_ENV"
