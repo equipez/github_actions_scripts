@@ -2,12 +2,24 @@
 # Usage: bash install_g95
 
 cd /tmp/ || exit 42
+G95DIR="/tmp/resources/g95/"
 
 git clone https://github.com/zaikunzhang/resources
 
 cd resources/ || exit 42
 
 unzip g95.zip
+
+# Make some links
+ln -s "$G95DIR/bin/x86_64-unknown-linux-gnu-g95" "$G95DIR/bin/g95"
+ln -s "$G95DIR/lib/gcc-lib/x86_64-unknown-linux-gnu/4.0.3/f951" "$G95DIR/lib/gcc-lib/x86_64-unknown-linux-gnu/4.0.3/cc1"
+ln -s "$G95DIR/lib/gcc-lib/x86_64-unknown-linux-gnu/4.0.3/libgcc_s.so.1" "$G95DIR/lib/gcc-lib/x86_64-unknown-linux-gnu/4.0.3/libgcc_s.so"
+CRT1="$(find /usr/ -type f -name "crt1.o*" -print -quit)"
+CRTI="$(find /usr/ -type f -name "crti.o*" -print -quit)"
+CRTN="$(find /usr/ -type f -name "crtn.o*" -print -quit)"
+ln -s "$CRT1" "$G95DIR/lib/gcc-lib/x86_64-unknown-linux-gnu/4.0.3/"
+ln -s "$CRTI" "$G95DIR/lib/gcc-lib/x86_64-unknown-linux-gnu/4.0.3/"
+ln -s "$CRTN" "$G95DIR/lib/gcc-lib/x86_64-unknown-linux-gnu/4.0.3/"
 
 # Set environment variable for subsequent steps
 echo "PATH=$PATH:/tmp/resources/g95/bin:/tmp/resources/g95/lib/gcc-lib/x86_64-unknown-linux-gnu/4.0.3" >> "$GITHUB_ENV"
