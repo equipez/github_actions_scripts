@@ -1,6 +1,5 @@
 #!/bin/bash
 # This script sets the following environment variables for GitHub Actions:
-#
 # ROOT_DIR: the root directory of the current repo
 # TEST_DIR: a random directory under /tmp for testing
 # SEDI: sed -i "" (mocOS) or sed -i (Linux/Windows)
