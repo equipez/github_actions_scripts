@@ -1,0 +1,28 @@
+#!/bin/bash
+# This script sets miscellaneous environment variables.
+#
+# Usage: bash misc_env
+
+# Set TEST_DIR to a random directory. It is needed in the Makefiles for the Fortran tests of PRIM.
+TEST_DIR=/tmp/gittest_$(date +%s)_"$((RANDOM*RANDOM))"
+echo "$TEST_DIR"
+echo "TEST_DIR=$TEST_DIR" >> "$GITHUB_ENV"
+
+# Set SEDI to either 'sed -i ""' (macOS) or 'sed -i' (otherwise).
+# When calling "sed -i" on macOS, it is obligatory to specify a string (e.g., .bak) after -i as the
+# extension for saving a backup. If the string is "", then no backup will be saved. If no string is
+# specified, then an error will be raised, saying "invalid command code".
+if [[ "$RUNNER_OS" = "macOS" ]] ; then
+    SEDI='sed -i ""'
+else
+    SEDI='sed -i'
+fi
+echo "$SEDI"
+echo "SEDI=$SEDI" >> "$GITHUB_ENV"
+
+# Make tools such as grep, make, and git available on Windows.
+if [[ "$RUNNER_OS" = "Windows" ]] ; then
+    PATH="$PATH"";C:\Program Files\Git\usr\bin;C:\Program Files\Git\bin;C:\ProgramData\Chocolatey\bin"
+    echo "$PATH"
+    echo "PATH=$PATH" >> "$GITHUB_ENV"
+fi
