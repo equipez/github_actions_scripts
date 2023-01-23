@@ -1,5 +1,8 @@
 #!/bin/bash
-# This script sets miscellaneous environment variables.
+# This script sets the following environment variables:
+# ROOT_DIR: the root directory of the current repo
+# TEST_DIR: a random directory under /tmp for testing
+# SEDI: sed -i "" (mocOS) or sed -i (otherwise)
 #
 # Usage: bash misc_env
 
