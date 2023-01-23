@@ -22,7 +22,7 @@ echo "SEDI=$SEDI" >> "$GITHUB_ENV"
 
 # Make tools such as grep, make, and git available on Windows.
 if [[ "$RUNNER_OS" = "Windows" ]] ; then
-    PATH="$PATH"";C:\Program Files\Git\usr\bin;C:\Program Files\Git\bin;C:\ProgramData\Chocolatey\bin"
+    PATH="$PATH"":C/Program Files/Git/usr/bin:/C/Program Files/Git/bin:/C/ProgramData/Chocolatey/bin"
     echo "$PATH"
     echo "PATH=$PATH" >> "$GITHUB_ENV"
 fi
