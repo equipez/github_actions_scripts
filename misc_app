@@ -1,9 +1,10 @@
 #!/bin/bash
-# This script installs miscellaneous applications for GitHub Actions.
+# This script installs miscellaneous applications for GitHub Actions on ***hosted runners***.
 # Usage: bash mist_setup
 
-if [[ "$GITHUB_ACTIONS_RUNNER_OS" == "self-hosted" ]] ; then
-    printf "\nThe runner is self-hosted.\n"
+# Exist if the runner is not hosted. Is there a better way to decide the runner type?
+if [[ ! -d /home/runner/work/ ]] ; then
+    printf "\nThe runner is not hosted by GitHub.\n"
     exit 0
 fi
 
