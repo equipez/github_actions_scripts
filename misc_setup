@@ -1,0 +1,11 @@
+#!/bin/bash
+# This script sets the miscellanies environment variables and installs miscellaneous applications
+# for GitHub Actions:
+#
+# Usage: bash misc_setup
+
+# The directory where this scrip resides
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+bash "$SCRIPT_DIR"/misc_env
+bash "$SCRIPT_DIR"/misc_app

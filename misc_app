@@ -1,4 +1,9 @@
 #!/bin/bash
-# This script installs miscellaneous applications for GitHub Actions
+# This script installs miscellaneous applications for GitHub Actions.
+# Usage: bash mist_setup
 
-sudo apt install gdb
+if [[ "$RUNNER_OS" == "Linux" ]] ; then
+    sudo apt install gdb
+elif [[ "$RUNNER_OS" == "macOS" ]] ; then
+    brew install gdb
+fi
