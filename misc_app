@@ -2,6 +2,11 @@
 # This script installs miscellaneous applications for GitHub Actions.
 # Usage: bash mist_setup
 
+if [[ "$GITHUB_ACTIONS_RUNNER_OS" == "self-hosted" ]] ; then
+    printf "\nThe runner is self-hosted.\n"
+    exit 0
+fi
+
 if [[ "$RUNNER_OS" == "Linux" ]] ; then
     sudo apt install gdb
 elif [[ "$RUNNER_OS" == "macOS" ]] ; then
