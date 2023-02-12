@@ -1,0 +1,4 @@
+#!/bin/bash
+# This script installs miscellaneous applications for GitHub Actions
+
+sudo apt install gdb
