@@ -5,10 +5,10 @@ FLANG_DFT="$HOME/local/flang"
 
 if [[ ! -d /home/runner/work/ ]] ; then
     printf "\nThe runner is not hosted by GitHub. Skip installation of p7zip and ncurses.\n"
-    if [[ -d $FLANG_DFT ]] ;then
-        printf "\nflang is already installed. Skip installation.\n"
+    if [[ -d $FLANG_DFT && -f $FLANG_DFT/bin/flang && -f $FLANG_DFT/bin/flang ]] ;then
         echo "PATH=$PATH:$FLANG_DFT/bin" >> "$GITHUB_ENV"
         echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$FLANG_DFT/lib" >> "$GITHUB_ENV"
+        printf "\nflang is already installed. Skip installation.\n"
         exit 0
     fi
 else
