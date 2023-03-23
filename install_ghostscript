@@ -28,7 +28,7 @@ URL_DFT=https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/
 
 TGZ=gs.tgz
 
-if wget "$URL" -O "$TGZ" ; then
+if wget "$URL" -O "$TGZ" > /dev/null 2>&1 ; then
     NEWGS="ghostscript-$VER-linux-x86_64/gs-$VER_NO_DOT-linux-x86_64"
 else
     printf "\n\n******Failed to download the latest version.******\n******Will install the default version: %s******\n\n" "$VER_DFT"
