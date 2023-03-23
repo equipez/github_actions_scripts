@@ -20,13 +20,22 @@ if [[ -z "$VER" ]] ; then
 fi
 printf "\n\n******Version to install: %s******\n\n" "$VER"
 VER_NO_DOT=${VER//\./}
+VER_DFT_NO_DOT=${VER_DFT//\./}
 
 # Download URL
-URL="https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs$VER_NO_DOT/ghostscript-$VER-linux-x86_64.tgz"
+URL=https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs"$VER_NO_DOT"/ghostscript-"$VER"-linux-x86_64.tgz
+URL_DFT=https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs"$VER_DFT_NO_DOT"/ghostscript-"$VER_DFT"-linux-x86_64.tgz
 
 TGZ=gs.tgz
 
-NEWGS="ghostscript-$VER-linux-x86_64/gs-$VER_NO_DOT-linux-x86_64"
+if wget "$URL" -O "$TGZ" ; then
+    NEWGS="ghostscript-$VER-linux-x86_64/gs-$VER_NO_DOT-linux-x86_64"
+else
+    printf "\n\n******Failed to download the latest version.******\n******Will install the default version: %s******\n\n" "$VER_DFT"
+    wget "$URL_DFT" -O "$TGZ"
+    NEWGS="ghostscript-$VER_DFT-linux-x86_64/gs-$VER_DFT_NO_DOT-linux-x86_64"
+fi
+
 GS="$(command -v gs)"
 if [[ -z "$GS" ]] ; then
     GS=/usr/bin/gs
