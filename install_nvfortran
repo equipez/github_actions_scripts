@@ -9,8 +9,7 @@ else
 fi
 
 echo "deb [trusted=yes] https://developer.download.nvidia.com/hpc-sdk/ubuntu/$ARCH /" | sudo tee /etc/apt/sources.list.d/nvhpc.list
-sudo apt update
-sudo apt install -y nvhpc
+sudo apt update && sudo apt install -y nvhpc
 
 NVFORTRAN="$(find /opt/*nvidia* -type f -executable -name nvfortran -print | tail -1)"
 

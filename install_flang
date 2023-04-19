@@ -13,7 +13,7 @@ if [[ ! -d /home/runner/work/ ]] ; then
     fi
 else
     if [[ "$RUNNER_OS" == "Linux" ]] ; then
-        sudo apt install p7zip-full libncurses* # libncurses* needed for libtinfo.so
+        sudo apt update && sudo apt install p7zip-full libncurses* # libncurses* needed for libtinfo.so
     elif [[ "$RUNNER_OS" == "macOS" ]] ; then
         brew install p7zip ncurses
     fi

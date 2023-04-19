@@ -14,7 +14,7 @@ GFORTRAN_PATH="/usr/bin/gfortran"
 
 REQUESTED_GFORTRAN="gfortran-""$REQUESTED_GFORTRAN_VERSION"
 
-sudo apt install "$REQUESTED_GFORTRAN"
+sudo apt update && sudo apt install "$REQUESTED_GFORTRAN"
 
 REQUESTED_GFORTRAN_PATH="$(realpath "$(command -v "$REQUESTED_GFORTRAN")")"
 
