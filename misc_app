@@ -12,4 +12,6 @@ if [[ "$RUNNER_OS" == "Linux" ]] ; then
     sudo apt update && sudo apt install gdb
 elif [[ "$RUNNER_OS" == "macOS" ]] ; then
     brew install gdb
+elif [[ "$RUNNER_OS" == "Windows" ]] ; then
+    choco install wget --no-progress
 fi
