@@ -12,7 +12,7 @@ cd resources/ || exit 42
 AOCC_7Z="aocc_flang.deb.7z.001"
 7za x "$AOCC_7Z" -aoa  # -aoa: overwrite all existing files without prompt
 
-sudo apt update && sudo apt install /tmp/aocc_flang.deb -y
+sudo dpkg -i /tmp/aocc_flang.deb
 
 # Run the script that sets the necessary environment variables and then damp them to $GITHUB_ENV
 # so that they are available in subsequent steps.
