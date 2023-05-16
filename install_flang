@@ -33,7 +33,7 @@ else  # Linux
 fi
 
 cd /tmp/ || exit 42
-git clone git@github.com:zaikunzhang/"$REPO_NAME".git
+git clone https://github.com:zaikunzhang/"$REPO_NAME".git
 
 cd "$REPO_NAME/$ARCH" || exit 42
 FLANG_7Z="flang.7z.001"
