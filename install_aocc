@@ -2,7 +2,8 @@
 # Usage: bash install_aocc
 
 REPO_NAME=aocc_flang
-cd /tmp || exit 42
+TMP_DIR="$(mktemp -d)"
+cd "$TMP_DIR" || exit 42
 git clone https://github.com/zaikunzhang/"$REPO_NAME".git
 
 cd "$REPO_NAME" || exit 42
@@ -10,7 +11,7 @@ AOCC_7Z="aocc_flang.deb.7z.001"
 7za x "$AOCC_7Z" -aoa  # -aoa: overwrite all existing files without prompt
 
 sudo apt update && sudo apt install p7zip-full libncurses* -y  # libncurses* needed for libtinfo.so
-sudo dpkg -i /tmp/$REPO_NAME/aocc_flang.deb
+sudo dpkg -i "$TMP_DIR"/"$REPO_NAME"/aocc_flang.deb
 
 # Run the script that sets the necessary environment variables and then damp them to $GITHUB_ENV
 # so that they are available in subsequent steps.

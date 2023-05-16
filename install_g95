@@ -2,9 +2,10 @@
 # Usage: bash install_g95
 
 REPO_NAME="g95"
-G95DIR="/tmp/$REPO_NAME/g95/"
+TMP_DIR="$(mktemp -d)"
+G95DIR="$TMP_DIR/$REPO_NAME/g95/"
 
-cd /tmp/ || exit 42
+cd "$TMP_DIR" || exit 42
 git clone https://github.com/zaikunzhang/"$REPO_NAME"
 cd "$REPO_NAME" || exit 42
 unzip g95.zip

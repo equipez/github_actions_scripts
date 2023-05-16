@@ -2,6 +2,7 @@
 # Usage: bash install_flang
 
 REPO_NAME="flang"
+TMP_DIR="$(mktemp -d)"
 
 FLANG_DFT="$HOME/local/flang"
 
@@ -30,7 +31,7 @@ else  # Linux
     ARCH=x86_64
 fi
 
-cd /tmp/ || exit 42
+cd "$TMP_DIR" || exit 42
 git clone https://github.com/zaikunzhang/"$REPO_NAME".git
 
 cd "$REPO_NAME/$ARCH" || exit 42
@@ -39,5 +40,5 @@ FLANG_7Z="flang.7z.001"
 
 # Set environment variable for subsequent steps
 # N.B.: The following lines will not work if this script is invoked with sudo.
-echo "PATH=$PATH:/tmp/$REPO_NAME/$ARCH/flang/bin" >> "$GITHUB_ENV"
-echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/tmp/$REPO_NAME/$ARCH/flang/lib" >> "$GITHUB_ENV"
+echo "PATH=$PATH:$TMP_DIR/$REPO_NAME/$ARCH/flang/bin" >> "$GITHUB_ENV"
+echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TMP_DIR/$REPO_NAME/$ARCH/flang/lib" >> "$GITHUB_ENV"
