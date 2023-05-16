@@ -18,4 +18,4 @@ ln -s "$CRTI" "$G95DIR/lib/gcc-lib/x86_64-unknown-linux-gnu/4.0.3/"
 ln -s "$CRTN" "$G95DIR/lib/gcc-lib/x86_64-unknown-linux-gnu/4.0.3/"
 
 # Set environment variable for subsequent steps
-echo "PATH=$PATH:/tmp/resources/g95/bin:/tmp/resources/g95/lib/gcc-lib/x86_64-unknown-linux-gnu/4.0.3" >> "$GITHUB_ENV"
+echo "PATH=$PATH:$G95DIR/bin:$G95DIR/lib/gcc-lib/x86_64-unknown-linux-gnu/4.0.3" >> "$GITHUB_ENV"
