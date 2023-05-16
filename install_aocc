@@ -1,17 +1,15 @@
 #!/bin/bash
 # Usage: bash install_aocc
 
-sudo apt update && sudo apt install p7zip-full libncurses* -y  # libncurses* needed for libtinfo.so
-
+REPO_NAME=aocc_flang
 cd /tmp || exit 42
+git clone https://github.com/zaikunzhang/"$REPO_NAME".git
 
-git clone https://github.com/zaikunzhang/resources
-
-cd resources/ || exit 42
-
+cd "$REPO_NAME" || exit 42
 AOCC_7Z="aocc_flang.deb.7z.001"
 7za x "$AOCC_7Z" -aoa  # -aoa: overwrite all existing files without prompt
 
+sudo apt update && sudo apt install p7zip-full libncurses* -y  # libncurses* needed for libtinfo.so
 sudo dpkg -i /tmp/resources/aocc_flang.deb
 
 # Run the script that sets the necessary environment variables and then damp them to $GITHUB_ENV

@@ -1,6 +1,8 @@
 #!/bin/bash
 # Usage: bash install_flang
 
+REPO_NAME="flang"
+
 FLANG_DFT="$HOME/local/flang"
 
 if [[ ! -d /home/runner/work/ ]] ; then
@@ -23,18 +25,21 @@ cd /tmp/ || exit 42
 
 PI_MODEL_FILE="/sys/firmware/devicetree/base/model"
 if [[ -f "$PI_MODEL_FILE" ]]  && grep -qi 'Raspberry Pi' < "$PI_MODEL_FILE" ; then  # Raspberry Pi
-    FLANG_URL="https://www.dropbox.com/s/jqff6oyo2t103gl/flang.aarch64.7z"
+    ARCH=aarch64
 elif [[ $(uname -s) == 'Darwin' ]] ; then  # macOS
-    FLANG_URL="https://www.dropbox.com/s/04oxwzbhnodghh3/flang.macos_x86.7z"
+    ARCH=macos_86
 else  # Linux
-    FLANG_URL="https://www.dropbox.com/s/ic76m3dm61ztw5g/flang.x86_64.7z"
+    ARCH=x86_64
 fi
 
-FLANG_7Z="flang.7z"
-wget "$FLANG_URL" -O "$FLANG_7Z"
+cd /tmp/ || exit 42
+git clone git@github.com:zaikunzhang/"$REPO_NAME".git
+
+cd "$REPO_NAME/$ARCH" || exit 42
+FLANG_7Z="flang.7z.001"
 7za x "$FLANG_7Z" -aoa  # -aoa: overwrite all existing files without prompt
 
 # Set environment variable for subsequent steps
 # N.B.: The following lines will not work if this script is invoked with sudo.
-echo "PATH=$PATH:/tmp/flang/bin" >> "$GITHUB_ENV"
-echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/tmp/flang/lib" >> "$GITHUB_ENV"
+echo "PATH=$PATH:/tmp/$REPO_NAME/$ARCH/flang/bin" >> "$GITHUB_ENV"
+echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/tmp/$REPO_NAME/$ARCH/flang/lib" >> "$GITHUB_ENV"

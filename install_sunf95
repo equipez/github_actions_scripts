@@ -1,12 +1,14 @@
 #!/bin/bash
 # Usage: bash install_sunf95
 
+REPO_NAME=OracleDevStd
 cd /tmp/ || exit 42
+git clone git@github.com:zaikunzhang/"$REPO_NAME".git
 
-wget "https://www.dropbox.com/s/ayi572hcf5drdvk/OracleDevStd.zip" -O OracleDevStd.zip
-
-unzip /tmp/OracleDevStd.zip
+cd "$REPO_NAME" || exit 42
+ORACLE_7Z="OracleDevStd.7z.001"
+7za x "$ORACLE_7Z" -aoa  # -aoa: overwrite all existing files without prompt
 
 # Set environment variable for subsequent steps
-echo "PATH=$PATH:/tmp/OracleDevStd/bin" >> "$GITHUB_ENV"
-echo "LD_LIBRARY_PATH=/tmp/OracleDevStd/lib/compilers/sys/amd64:/tmp/OracleDevStd/lib/compilers/sys/:$LD_LIBRARY_PATH" >> "$GITHUB_ENV"
+echo "PATH=$PATH:/tmp/$REPO_NAME/OracleDevStd/bin" >> "$GITHUB_ENV"
+echo "LD_LIBRARY_PATH=/tmp/$REPO_NAME/OracleDevStd/lib/compilers/sys/amd64:/tmp/$REPO_NAME/OracleDevStd/lib/compilers/sys/:$LD_LIBRARY_PATH" >> "$GITHUB_ENV"
