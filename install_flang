@@ -21,8 +21,6 @@ else
     fi
 fi
 
-cd /tmp/ || exit 42
-
 PI_MODEL_FILE="/sys/firmware/devicetree/base/model"
 if [[ -f "$PI_MODEL_FILE" ]]  && grep -qi 'Raspberry Pi' < "$PI_MODEL_FILE" ; then  # Raspberry Pi
     ARCH=aarch64
