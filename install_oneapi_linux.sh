@@ -21,6 +21,7 @@ sudo apt update
 #sudo apt install intel-basekit intel-hpckit  # Instead of this line, the following line seems to suffice
 sudo apt install -y intel-oneapi-common-vars intel-oneapi-compiler-fortran
 installer_exit_code=$?
+sudo apt clean  # Remove the .deb
 
 # Run the script that sets the necessary environment variables and then damp them to $GITHUB_ENV
 # so that they are available in subsequent steps.
