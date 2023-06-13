@@ -12,6 +12,7 @@ AOCC_7Z="aocc_flang.deb.7z.001"
 
 sudo apt update && sudo apt install p7zip-full libncurses* -y  # libncurses* needed for libtinfo.so
 sudo dpkg -i "$TMP_DIR"/"$REPO_NAME"/aocc_flang.deb
+rm -rf "$TMP_DIR"
 
 # Run the script that sets the necessary environment variables and then damp them to $GITHUB_ENV
 # so that they are available in subsequent steps.

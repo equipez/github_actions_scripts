@@ -37,6 +37,7 @@ git clone https://github.com/zaikunzhang/"$REPO_NAME".git
 cd "$REPO_NAME/$ARCH" || exit 42
 FLANG_7Z="flang.7z.001"
 7za x "$FLANG_7Z" -aoa  # -aoa: overwrite all existing files without prompt
+rm -f flang.7z*
 
 # Set environment variable for subsequent steps
 # N.B.: The following lines will not work if this script is invoked with sudo.
