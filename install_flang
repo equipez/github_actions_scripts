@@ -41,5 +41,6 @@ rm -f flang.7z*
 
 # Set environment variable for subsequent steps
 # N.B.: The following lines will not work if this script is invoked with sudo.
-echo "PATH=$PATH:$TMP_DIR/$REPO_NAME/$ARCH/flang/bin" >> "$GITHUB_ENV"
+# Put flang/bin to the beginning of PATH, in case there is another flang in PATH, e.g., from AOCC.
+echo "PATH=$TMP_DIR/$REPO_NAME/$ARCH/flang/bin:$PATH" >> "$GITHUB_ENV"
 echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TMP_DIR/$REPO_NAME/$ARCH/flang/lib" >> "$GITHUB_ENV"
