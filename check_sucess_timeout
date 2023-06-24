@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Set maximum running time of the tests
-#MAX_RUNTIME_SECONDS=$((330*60))
-MAX_RUNTIME_SECONDS=$((50))
+MAX_RUNTIME_SECONDS=$((330*60))
+#MAX_RUNTIME_SECONDS=$((50))
 
 # Install jq
 sudo apt update && sudo apt install -y jq
@@ -20,7 +20,7 @@ echo "$response"
 echo "Jobs length:" "$(echo "$response" | jq ' .jobs | length')"
 
 # Loop through all the test jobs
-all_successful_or_overtime=true
+all_success_or_timeout=true
 jobs_length=$(echo "$response" | jq ' .jobs | length')
 for ((i=0; i<jobs_length; i++)); do
     job=$(echo "$response" | jq ".jobs[$i]")
@@ -43,22 +43,22 @@ for ((i=0; i<jobs_length; i++)); do
     runtime=$((end_time - start_time))
     echo "$job_name": "$conclusion", running time: "$runtime"
 
-    # Check if the conclusion is success or cancelled due to overtime
+    # Check if the conclusion is successful or cancelled due to timeout
     if [[ "$conclusion" == "success" ]]; then
         continue
     elif [[ "$conclusion" == "cancelled" ]] && [[ "$runtime" -ge "$MAX_RUNTIME_SECONDS" ]]; then
         continue
     else
-        all_successful_or_overtime=false
+        all_success_or_timeout=false
         break
     fi
 done
 
 # Determine the final status of the workflow
-if [[ "$all_successful_or_overtime" == true ]]; then
-    echo "All tests are successful or cancelled due to overtime. The workflow is successful."
+if [[ "$all_success_or_timeout" == true ]]; then
+    echo "All tests are successful or cancelled due to timeout. The workflow is successful."
     exit 0
 else
-    echo "Some tests are unsuccessfully or cancelled not due to overtime. The workflow is unsuccessful."
+    echo "Some tests are unsuccessfully or cancelled not due to timeout. The workflow is unsuccessful."
     exit 42
 fi
