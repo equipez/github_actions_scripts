@@ -1,0 +1,64 @@
+#!/bin/bash
+
+# Set maximum running time of the tests
+MAX_RUNTIME_SECONDS=$((330*60))
+#MAX_RUNTIME_SECONDS=$((50))
+
+# Install jq
+sudo apt update && sudo apt install -y jq
+
+# Fetch the jobs for the current workflow run using the GitHub API
+# $1 = ${{ secrets.GITHUB_TOKEN }}
+# $2 = ${{ github.repository }}
+# $3 = ${{ github.run_id }}
+response=$(curl -s -H "Authorization: token $1" \
+    -H "Accept: application/vnd.github+json" \
+    "https://api.github.com/repos/$2/actions/runs/$3/jobs?per_page=100")
+
+echo "Response:"
+echo "$response"
+echo "Jobs length:" "$(echo "$response" | jq ' .jobs | length')"
+
+# Loop through all the test jobs
+all_success_or_timeout=true
+jobs_length=$(echo "$response" | jq ' .jobs | length')
+for ((i=0; i<jobs_length; i++)); do
+    job=$(echo "$response" | jq ".jobs[$i]")
+    job_name=$(echo "$job" | jq -r '.name')
+
+    # Skip the current job, i.e., the job does the checking.
+    job_status=$(echo "$job" | jq -r '.status')
+    if [[ "$job_status" == "in_progress" ]] ; then
+        continue
+    fi
+
+    # Extract the conclusion and timestamps of the job
+    conclusion=$(echo "$job" | jq -r '.conclusion')
+    started_at=$(echo "$job" | jq -r '.started_at')
+    completed_at=$(echo "$job" | jq -r '.completed_at')
+
+    # Calculate the running time of the job
+    start_time=$(date --utc --date "$started_at" +%s)
+    end_time=$(date --utc --date "$completed_at" +%s)
+    runtime=$((end_time - start_time))
+    echo "$job_name": "$conclusion", running time: "$runtime"
+
+    # Check if the conclusion is successful or cancelled due to timeout
+    if [[ "$conclusion" == "success" ]]; then
+        continue
+    elif [[ "$job_name" == *big* ]] && [[ "$conclusion" == "cancelled" ]] && [[ "$runtime" -ge "$MAX_RUNTIME_SECONDS" ]]; then
+        continue
+    else
+        all_success_or_timeout=false
+        break
+    fi
+done
+
+# Determine the final status of the workflow
+if [[ "$all_success_or_timeout" == true ]]; then
+    echo "All tests are successful or cancelled due to timeout. The workflow is successful."
+    exit 0
+else
+    echo "Some tests are unsuccessfully or cancelled not due to timeout. The workflow is unsuccessful."
+    exit 42
+fi
