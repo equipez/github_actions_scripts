@@ -59,6 +59,6 @@ if [[ "$all_success_or_timeout" == true ]]; then
     echo "All tests are successful or cancelled due to timeout. The workflow is successful."
     exit 0
 else
-    echo "Some tests are unsuccessfully or cancelled not due to timeout. The workflow is unsuccessful."
+    echo "Some tests are unsuccessful or cancelled not due to timeout. The workflow is unsuccessful."
     exit 42
 fi
