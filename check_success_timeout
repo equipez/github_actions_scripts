@@ -43,10 +43,10 @@ for ((i=0; i<jobs_length; i++)); do
     runtime=$((end_time - start_time))
     echo "$job_name": "$conclusion", running time: "$runtime"
 
-    # Check if the conclusion is successful or cancelled due to timeout
+    # Check if the conclusion is successful or cancelled due to timeout or cancelled without starting
     if [[ "$conclusion" == "success" ]]; then
         continue
-    elif [[ "$conclusion" == "cancelled" ]] && [[ "$runtime" -ge "$MAX_RUNTIME_SECONDS" ]]; then
+    elif [[ "$conclusion" == "cancelled" ]] && [[ "$runtime" -ge "$MAX_RUNTIME_SECONDS" ]] || [[ "$runtime" -eq "0" ]]; then
         continue
     else
         all_success_or_timeout=false
