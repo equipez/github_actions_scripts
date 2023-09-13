@@ -28,6 +28,11 @@ fi
 echo "$SEDI"
 echo "SEDI=$SEDI" >> "$GITHUB_ENV"
 
+# Set GFORTRAN_VERSION to the version of gfortran used when mexifying and linting Fortran code.
+GFORTRAN_VERSION=13
+echo "$GFORTRAN_VERSION"
+echo "GFORTRAN_VERSION=$GFORTRAN_VERSION" >> "$GITHUB_ENV"
+
 # The following does not work. Why?
 # Make tools such as grep, make, and git available on Windows.
 #if [[ "$RUNNER_OS" = "Windows" ]] ; then
