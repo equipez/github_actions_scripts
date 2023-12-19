@@ -5,18 +5,15 @@
 # do the job in the temporary directory of the system
 cd /tmp || exit 42
 
-# use wget to fetch the Intel repository public key
-wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+# download the key to system keyring
+wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
+    | gpg --dearmor | sudo tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null
 
-# add to your apt sources keyring so that archives signed with this key will be trusted.
-sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+# add signed entry to apt sources and configure the APT client to use Intel repository:
+echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" \
+    | sudo tee /etc/apt/sources.list.d/oneAPI.list
 
-# optionally, remove the public key
-rm GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
-
-# the installation
-echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
-sudo add-apt-repository "deb https://apt.repos.intel.com/oneapi all main"
+# installation
 sudo apt update
 #sudo apt install intel-basekit intel-hpckit  # Instead of this line, the following line seems to suffice
 sudo apt install -y intel-oneapi-common-vars intel-oneapi-compiler-fortran
