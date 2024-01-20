@@ -5,7 +5,7 @@
 # Exist if the runner is not hosted. Is there a better way to decide the runner type?
 if [[ ("$RUNNER_OS" == "Linux" && ! -d /home/runner/work/) || ("$RUNNER_OS" == "macOS" && ! -d /Users/runner/work/) ]] ; then
     printf "\nThe runner is not hosted by GitHub.\n"
-    #exit 0
+    exit 0
 fi
 
 if [[ "$RUNNER_OS" == "Linux" ]] ; then
