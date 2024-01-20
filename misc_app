@@ -5,14 +5,15 @@
 # Exist if the runner is not hosted. Is there a better way to decide the runner type?
 if [[ ("$RUNNER_OS" == "Linux" && ! -d /home/runner/work/) || ("$RUNNER_OS" == "macOS" && ! -d /Users/runner/work/) ]] ; then
     printf "\nThe runner is not hosted by GitHub.\n"
-    exit 0
+    #exit 0
 fi
 
 if [[ "$RUNNER_OS" == "Linux" ]] ; then
-    sudo apt update && sudo apt install gdb
+    sudo apt update && sudo apt install gdb cmake
 elif [[ "$RUNNER_OS" == "macOS" ]] ; then
     brew install gdb
     brew install coreutils
+    brew install cmake
 elif [[ "$RUNNER_OS" == "Windows" ]] ; then
     choco install wget --no-progress
 fi
