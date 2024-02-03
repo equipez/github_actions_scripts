@@ -10,18 +10,18 @@ fi
 
 if [[ "$RUNNER_OS" == "Linux" ]] ; then
     sudo apt update
-    sudo apt install gdb cmake ninja-build
+    sudo apt install gdb make cmake ninja-build
     gdb --version
     cmake --version
     ninja --version
 elif [[ "$RUNNER_OS" == "macOS" ]] ; then
-    brew install coreutils gdb cmake ninja
+    brew install coreutils gdb make cmake ninja
     gbd --version
     cmake --version
     ninja --version
 elif [[ "$RUNNER_OS" == "Windows" ]] ; then
-    choco install wget cmake ninja --no-progress
-    gbd --version
+    choco install wget make cmake ninja --no-progress
+    make --verion
     cmake --version
     ninja --version
 fi
