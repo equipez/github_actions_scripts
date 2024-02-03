@@ -9,19 +9,18 @@ if [[ ("$RUNNER_OS" == "Linux" && ! -d /home/runner/work/) || ("$RUNNER_OS" == "
 fi
 
 if [[ "$RUNNER_OS" == "Linux" ]] ; then
-    sudo apt update && sudo apt install gdb cmake
+    sudo apt update
+    sudo apt install gdb cmake ninja-build
     gdb --version
     cmake --version
 elif [[ "$RUNNER_OS" == "macOS" ]] ; then
-    brew install gdb
-    brew install coreutils
-    brew install cmake
+    brew install coreutils gdb cmake ninja
     gbd --version
     cmake --version
+    ninja --version
 elif [[ "$RUNNER_OS" == "Windows" ]] ; then
-    choco install wget --no-progress
-    choco install gdb --no-progress
-    choco install cmake --no-progress
+    choco install wget cmake ninja --no-progress
     gbd --version
     cmake --version
+    ninja --version
 fi
