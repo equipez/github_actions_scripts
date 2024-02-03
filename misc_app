@@ -21,7 +21,7 @@ elif [[ "$RUNNER_OS" == "macOS" ]] ; then
     ninja --version
 elif [[ "$RUNNER_OS" == "Windows" ]] ; then
     choco install wget make cmake ninja --no-progress
-    make --verion
+    make --version
     cmake --version
     ninja --version
 fi
