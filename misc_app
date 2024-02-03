@@ -13,6 +13,7 @@ if [[ "$RUNNER_OS" == "Linux" ]] ; then
     sudo apt install gdb cmake ninja-build
     gdb --version
     cmake --version
+    ninja --version
 elif [[ "$RUNNER_OS" == "macOS" ]] ; then
     brew install coreutils gdb cmake ninja
     gbd --version
