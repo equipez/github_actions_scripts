@@ -10,10 +10,18 @@ fi
 
 if [[ "$RUNNER_OS" == "Linux" ]] ; then
     sudo apt update && sudo apt install gdb cmake
+    gdb --version
+    cmake --version
 elif [[ "$RUNNER_OS" == "macOS" ]] ; then
     brew install gdb
     brew install coreutils
     brew install cmake
+    gbd --version
+    cmake --version
 elif [[ "$RUNNER_OS" == "Windows" ]] ; then
     choco install wget --no-progress
+    choco install gdb --no-progress
+    choco install cmake --no-progress
+    gbd --version
+    cmake --version
 fi
