@@ -20,7 +20,7 @@ elif [[ "$RUNNER_OS" == "macOS" ]] ; then
     cmake --version
     ninja --version
 elif [[ "$RUNNER_OS" == "Windows" ]] ; then
-    choco install wget make cmake ninja --no-progress
+    choco install wget make cmake ninja --no-progress  # gdb cannot be installed by choco
     make --version
     cmake --version
     ninja --version
