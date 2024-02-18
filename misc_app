@@ -12,10 +12,12 @@ if [[ "$RUNNER_OS" == "Linux" ]] ; then
     sudo apt update
     sudo apt install gdb make cmake ninja-build
     gdb --version
+    make --version
     cmake --version
     ninja --version
 elif [[ "$RUNNER_OS" == "macOS" ]] ; then
     brew install coreutils make cmake ninja
+    make --version
     cmake --version
     ninja --version
     (brew install gdb && gbd --version) || :  # gdb cannot be installed by brew on macOS 14 with Apple Silicon chips as of 20240219
