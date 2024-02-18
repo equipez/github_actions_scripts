@@ -15,10 +15,10 @@ if [[ "$RUNNER_OS" == "Linux" ]] ; then
     cmake --version
     ninja --version
 elif [[ "$RUNNER_OS" == "macOS" ]] ; then
-    brew install coreutils gdb make cmake ninja
-    gbd --version
+    brew install coreutils make cmake ninja
     cmake --version
     ninja --version
+    (brew install gdb && gbd --version) || :  # gdb cannot be installed by brew on macOS 14 with Apple Silicon chips as of 20240219
 elif [[ "$RUNNER_OS" == "Windows" ]] ; then
     choco install wget make cmake ninja --no-progress  # gdb cannot be installed by choco
     make --version
