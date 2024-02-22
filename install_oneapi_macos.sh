@@ -8,9 +8,9 @@
 # Zaikun Zhang (www.zhangzk.net), January 9, 2023
 
 # URL for the offline installer of Intel OneAPI Fortran compiler. To get the latest URL, search for
-# "Intel Fortran Compiler Classic for macOS" at 
+# "Intel Fortran Compiler Classic for macOS" at
 # https://www.intel.com/content/www/us/en/developer/articles/tool/oneapi-standalone-components.html
-# and take the URL for the "Offline" installer. 
+# and take the URL for the "Offline" installer.
 # Default version: 2023.2.0 (updated on 20231015)
 URL="https://registrationcenter-download.intel.com/akdlm/IRC_NAS/2fbce033-15f4-4e13-8d14-f5a2016541ce/m_fortran-compiler-classic_p_2023.2.0.49001_offline.dmg"
 if [[ $# -ge 1 ]] ; then
@@ -44,7 +44,7 @@ else
 fi
 
 # Show the result of the installation.
-echo "The latest ifort installed is:"
+echo "The ifort installed is:"
 ifort --version
 echo "The path to ifort is:"
 command -v ifort

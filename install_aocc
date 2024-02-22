@@ -27,6 +27,10 @@ if [[ -d /opt/AMD ]] ; then
 else
     exit 1
 fi
-echo $PATH
-type aflang
 env | grep -i 'aocc\|AMD' >> "$GITHUB_ENV"
+
+# Show the result of the installation.
+echo "The AOCC flang installed is:"
+aflang --version
+echo "The path to AOCC flang is:"
+command -v aflang

@@ -30,11 +30,11 @@ else
 fi
 
 # Show the result of the installation.
-echo "The latest ifort installed is:"
+echo "The ifort installed is:"
 ifort --version
 echo "The path to ifort is:"
 command -v ifort
-echo "The latest ifx installed is:"
+echo "The ifx installed is:"
 ifx --version
 echo "The path to ifx is:"
 command -v ifx

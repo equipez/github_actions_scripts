@@ -14,3 +14,9 @@ sudo apt update && sudo apt install -y nvhpc && sudo apt clean  # clean is to re
 NVFORTRAN="$(find /opt/*nvidia* -type f -executable -name nvfortran -print | tail -1)"
 
 sudo ln -s "$NVFORTRAN" /usr/bin
+
+# Show the result of the installation.
+echo "The nvfortran installed is:"
+nvfortran --version
+echo "The path to nvfortran is:"
+command -v nvfortran

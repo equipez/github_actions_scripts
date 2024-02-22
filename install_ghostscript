@@ -47,3 +47,6 @@ if [[ -f "$GS" ]] ; then
 fi
 sudo cp "$NEWGS" "$GS"
 rm -r "$DIR"
+
+gs -v
+command -v gs

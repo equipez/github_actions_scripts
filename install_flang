@@ -48,7 +48,7 @@ echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TMP_DIR/$REPO_NAME/$ARCH/flang/lib" >> "
 # Show the result of the installation.
 export PATH=$TMP_DIR/$REPO_NAME/$ARCH/flang/bin:$PATH
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TMP_DIR/$REPO_NAME/$ARCH/flang/lib
-echo "The latest flang installed is:"
+echo "The flang installed is:"
 flang --version
 echo "The path to flang is:"
 command -v flang

@@ -6,4 +6,6 @@ URL="https://tug.org/svn/texlive/trunk/Build/extra/epstopdf/epstopdf.pl?view=co"
 sudo wget "$URL" -O /usr/bin/epstopdf
 sudo chmod +x /usr/bin/epstopdf
 which epstopdf
+epstopdf --version
 which kpsewhich
+kpsewhich --version

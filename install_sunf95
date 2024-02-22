@@ -14,3 +14,11 @@ rm -f OracleDevStd.7z*
 # Set environment variable for subsequent steps
 echo "PATH=$PATH:$TMP_DIR/$REPO_NAME/OracleDevStd/bin" >> "$GITHUB_ENV"
 echo "LD_LIBRARY_PATH=$TMP_DIR/$REPO_NAME/OracleDevStd/lib/compilers/sys/amd64:$TMP_DIR/$REPO_NAME/OracleDevStd/lib/compilers/sys/:$LD_LIBRARY_PATH" >> "$GITHUB_ENV"
+
+# Show the result of the installation.
+export PATH=$PATH:$TMP_DIR/$REPO_NAME/OracleDevStd/bin
+export LD_LIBRARY_PATH=$TMP_DIR/$REPO_NAME/OracleDevStd/lib/compilers/sys/amd64:$TMP_DIR/$REPO_NAME/OracleDevStd/lib/compilers/sys/:$LD_LIBRARY_PATH
+echo "The sunf95 installed is:"
+sunf95 --version
+echo "The path to sunf95 is:"
+command -v sunf95

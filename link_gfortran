@@ -24,6 +24,9 @@ fi
 
 sudo ln -s "$REQUESTED_GFORTRAN_PATH" "$GFORTRAN_PATH"
 
+echo "gfortran is linked to"
 realpath "$(command -v gfortran)"
+echo "The version of gfortran is"
+gfortran --version
 
 exit 0
