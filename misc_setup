@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # This script sets the miscellanies environment variables and installs miscellaneous applications
 # for GitHub Actions:
 #

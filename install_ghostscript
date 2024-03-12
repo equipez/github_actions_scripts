@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Usage: bash install_ghostscript
 
 # Default version. This is the latest version as of 20220926. This should not matter if the "Find

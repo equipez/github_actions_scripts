@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Usage: bash install_flang
 
 REPO_NAME="flang"

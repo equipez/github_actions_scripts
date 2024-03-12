@@ -31,7 +31,7 @@ elif [[ "$RUNNER_OS" == "Linux" ]]; then
   } >> "$GITHUB_ENV"
 
   # Build and install CUTEst
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/jfowkes/pycutest/master/.install_cutest.sh)"
+  /usr/bin/env bash -c "$(curl -fsSL https://raw.githubusercontent.com/jfowkes/pycutest/master/.install_cutest.sh)"
 elif [[ "$RUNNER_OS" == "macOS" ]]; then
   # Install gfortran
   sudo ln -fs /usr/local/bin/gfortran-12 /usr/local/bin/gfortran
@@ -53,4 +53,3 @@ fi
 # Install PyCUTEst
 echo "PYCUTEST_CACHE=$GITHUB_WORKSPACE" >> "$GITHUB_ENV"
 python -m pip install --progress-bar=off pycutest
-

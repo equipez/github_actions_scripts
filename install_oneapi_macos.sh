@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # This script installs the Fortran compilers provided in Intel OneAPI.
 # See https://github.com/oneapi-src/oneapi-ci
 # https://github.com/oneapi-src/oneapi-ci/blob/master/scripts/install_macos.sh

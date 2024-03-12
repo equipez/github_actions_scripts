@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # This script installs miscellaneous applications for GitHub Actions on ***hosted runners***.
 # Usage: bash mist_setup
 

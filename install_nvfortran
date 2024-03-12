@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Usage: bash install_nvfortran
 
 # ARCH is the architecture of the current system.

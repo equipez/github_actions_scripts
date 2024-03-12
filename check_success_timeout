@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Set maximum running time of the tests
 MAX_RUNTIME_SECONDS=$((330*60))

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Usage: bash install_aocc
 
 REPO_NAME=aocc_flang

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # This script installs the Fortran compilers provided in Intel OneAPI.
 # Usage: bash install_oneapi_linux.sh
 

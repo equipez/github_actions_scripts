@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Usage: bash install_epstopdf
 
 sudo apt update && sudo apt install -y texlive wget
