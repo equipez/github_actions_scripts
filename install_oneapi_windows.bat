@@ -11,8 +11,8 @@
 :: "Intel Fortran Compiler Classic and Intel Fortran Compiler for Windows" at
 :: https://www.intel.com/content/www/us/en/developer/articles/tool/oneapi-standalone-components.html
 :: and take the URL for the "Offline" installer.
-:: Default version: 2024.0.1 (updated on 20231219)
-set URL=https://registrationcenter-download.intel.com/akdlm/IRC_NAS/2e7500af-3097-4424-bd07-5d86c7791ec5/w_fortran-compiler_p_2024.0.1.30_offline.exe
+:: Default version: 2024.1.0 (updated on 20240427)
+set URL=https://registrationcenter-download.intel.com/akdlm/IRC_NAS/f6a44238-5cb6-4787-be83-2ef48bc70cba/w_fortran-compiler_p_2024.1.0.466_offline.exe
 if "%1"=="2023" (
     set URL=https://registrationcenter-download.intel.com/akdlm/IRC_NAS/1720594b-b12c-4aca-b7fb-a7d317bac5cb/w_fortran-compiler_p_2023.2.1.7_offline.exe
 )
