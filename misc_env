@@ -11,7 +11,7 @@ ROOT_DIR="$(pwd -P)"  # `realpath` is unavailable on macOS; -P is needed
 echo "$ROOT_DIR"
 echo "ROOT_DIR=$ROOT_DIR" >> "$GITHUB_ENV"
 
-# Set TEST_DIR to a random directory. It is needed in the Makefiles for the Fortran tests of PRIM.
+# Set TEST_DIR to a random directory. It is needed in the Makefiles for the Fortran tests of PRIMA.
 TEST_DIR=/tmp/gittest_$(date +%s)_"$((RANDOM*RANDOM))"
 echo "$TEST_DIR"
 echo "TEST_DIR=$TEST_DIR" >> "$GITHUB_ENV"
