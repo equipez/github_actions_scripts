@@ -16,6 +16,6 @@ bash "$SCRIPT_DIR"/misc_app
 # For GITHUB_ACTIONS, RUNNER_ENVIRONMENT, and RUNNER_OS variables, see:
 # https://docs.github.com/en/actions/reference/workflows-and-actions/variables
 SWAP_SIZE=16
- if [[ "$GITHUB_ACTIONS" == "true" && "$RUNNER_ENVIRONMENT" == "github-hosted" && "$RUNNER_OS" == "Linux" ]]; then
+if [[ "$GITHUB_ACTIONS" == "true" && "$RUNNER_ENVIRONMENT" == "github-hosted" && "$RUNNER_OS" == "Linux" ]]; then
     bash "$SCRIPT_DIR"/resize_swap "$SWAP_SIZE"
 fi

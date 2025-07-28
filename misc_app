@@ -3,7 +3,7 @@
 #
 # Usage: bash mist_setup
 
-# Exist if the script is not executed during a GitHub Actions workflow on a GitHub-hosted runner.
+# Exit if the script is not executed during a GitHub Actions workflow on a GitHub-hosted runner.
 # For GITHUB_ACTIONS and RUNNER_ENVIRONMENT variables, see:
 # https://docs.github.com/en/actions/reference/workflows-and-actions/variables
  if [[ "$GITHUB_ACTIONS" != "true" || "$RUNNER_ENVIRONMENT" != "github-hosted" ]]; then
