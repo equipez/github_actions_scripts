@@ -9,3 +9,9 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 bash "$SCRIPT_DIR"/misc_env
 bash "$SCRIPT_DIR"/misc_app
+
+# The following line resizes the swap to 16 GB. 
+# As of 20250727, this is needed by PROMA profiling on MATLAB R2025a, 
+# or the GitHub hosted runners may shut down due to memory starvation. 
+# This did not happen with earlier versions of MATLAB. 
+bash "$SCRIPT_DIR"/resize_swap 16 
