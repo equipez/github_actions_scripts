@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# This script installs miscellaneous applications for GitHub Actions on ***hosted runners***.
+# This script installs miscellaneous libraries for GitHub Actions on ***hosted runners***.
 #
 # Usage: bash mist_setup
 
@@ -23,7 +23,7 @@ if [[ "$RUNNER_OS" == "Linux" ]] ; then
     # "Assertion: This application failed to start because no Qt platform plugin could be initialized".
     # This is why the script should be called AFTER free-disk-space.
     # See https://github.com/zequipe/test_matlab/actions/workflows/qt.yml
-    sudo apt install -y libgl1 libgl1-mesa-dri libglx-mesa0 libglx0 xvfb
+    sudo apt install -y x11-xkb-utils
 elif [[ "$RUNNER_OS" == "macOS" ]] ; then
     brew install coreutils make cmake ninja
     make --version

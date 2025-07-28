@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# This script sets the miscellanies environment variables and installs miscellaneous applications
+# This script sets the miscellanies environment variables and installs miscellaneous libraries
 # for GitHub Actions.
 #
 # Usage: bash misc_setup
@@ -8,7 +8,7 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 bash "$SCRIPT_DIR"/misc_env
-bash "$SCRIPT_DIR"/misc_app
+bash "$SCRIPT_DIR"/misc_lib
 
 # The following line resizes the swap of GitHub-hosted Linux runners.
 # As of 20250727, this is needed by profiling PRIMA on MATLAB R2025a, or the GitHub-hosted runners
