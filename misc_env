@@ -3,6 +3,7 @@
 # ROOT_DIR: the root directory of the current repo
 # TEST_DIR: a random directory under /tmp for testing
 # SEDI: sed -i "" (mocOS) or sed -i (Linux/Windows)
+# GFORTRAN_VERSION: version of gfortran used when mexifying and linting Fortran code
 #
 # Usage: bash misc_env
 
