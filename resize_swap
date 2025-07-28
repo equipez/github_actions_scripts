@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
+# This script resizes the swap file to a specified size in GB.
+# Usage: bash resize_swap.sh <size_in_GB>
 
-# Show the swap size 
+# Show the swap size
 echo "Swap size before resizing:"
 swapon --show
 
@@ -23,6 +25,6 @@ sudo mkswap /swapfile
 # Activate the swap file
 sudo swapon /swapfile
 
-# Show the swap size 
+# Show the swap size
 echo "Swap size after resizing:"
 swapon --show
