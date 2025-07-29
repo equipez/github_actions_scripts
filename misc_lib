@@ -18,12 +18,13 @@ if [[ "$RUNNER_OS" == "Linux" ]] ; then
     make --version
     cmake --version
     ninja --version
-    # The following packages are removed by the `large-packages` section of free-disk-space@v1.3.1.
-    # Without x11-xkb-utils, MATLAB R2025a when running `plot` crashes with an internal error:
+    # The following line re-installs necessary packages removed by the `large-packages` section of
+    # free-disk-space@v1.3.1. This is why the script should be called AFTER free-disk-space.
+    # 1. Without x11-xkb-utils, MATLAB R2025a when running `plot` crashes with an internal error:
     # "Assertion: This application failed to start because no Qt platform plugin could be initialized".
-    # This is why the script should be called AFTER free-disk-space.
-    # See https://github.com/zequipe/test_matlab/actions/workflows/qt.yml
-    # Without libgl1, MATLAB R2025a get stuck when profiling PRIMA.
+    # 2. Without libgl1, MATLAB R2025a get stuck when executing `saveas`.
+    # See https://github.com/zequipe/test_matlab/blob/master/.github/workflows/dependencies.yml
+    # and https://github.com/matlab-actions/setup-matlab/issues/154 for more details.
     sudo apt install -y x11-xkb-utils libgl1
 elif [[ "$RUNNER_OS" == "macOS" ]] ; then
     brew install coreutils make cmake ninja
