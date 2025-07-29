@@ -26,6 +26,7 @@ if [[ "$RUNNER_OS" == "Linux" ]] ; then
     # See https://github.com/zequipe/test_matlab/blob/master/.github/workflows/dependencies.yml
     # and https://github.com/matlab-actions/setup-matlab/issues/154 for more details.
     sudo apt install -y x11-xkb-utils libgl1
+    dpkg -l x11-xkb-utils libgl1
 elif [[ "$RUNNER_OS" == "macOS" ]] ; then
     brew install coreutils make cmake ninja
     make --version
