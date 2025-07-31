@@ -28,10 +28,11 @@ if [[ "$RUNNER_OS" == "Linux" ]]; then
     df -h
 elif [[ "$RUNNER_OS" == "macOS" ]]; then
     sysctl -a | grep machdep.cpu
-    sysctl -n hw.memsize
+    echo Total Memory: "$(( $(sysctl -n hw.memsize) / 1024 / 1024 / 1024 ))" GB
     df -h
 elif [[ "$RUNNER_OS" == "Windows" ]]; then
     systeminfo
+    wmic logicaldisk get DeviceID,Size,FreeSpace
 else
     echo "Unknown OS: $RUNNER_OS"
     exit 1
