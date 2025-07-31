@@ -19,3 +19,21 @@ SWAP_SIZE=20
 if [[ "$GITHUB_ACTIONS" == "true" && "$RUNNER_ENVIRONMENT" == "github-hosted" && "$RUNNER_OS" == "Linux" ]]; then
     bash "$SCRIPT_DIR"/resize_swap "$SWAP_SIZE"
 fi
+
+echo -e "\n*********************************************************************************************\n"
+echo "System Information:"
+if [[ "$RUNNER_OS" == "Linux" ]]; then
+    lscpu
+    lsmem
+    df -h
+elif [[ "$RUNNER_OS" == "macOS" ]]; then
+    sysctl -a | grep machdep.cpu
+    sysctl -n hw.memsize
+    df -h
+elif [[ "$RUNNER_OS" == "Windows" ]]; then
+    systeminfo
+else
+    echo "Unknown OS: $RUNNER_OS"
+    exit 1
+fi
+echo -e "\n*********************************************************************************************\n"
