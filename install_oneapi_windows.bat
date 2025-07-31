@@ -28,7 +28,9 @@ if "%1"=="2021" (
 :: Component to install.
 set COMPONENTS=intel.oneapi.win.ifort-compiler
 
-:: Download the installer. curl is included by default in Windows since Windows 10, version 1803.
+:: Download the installer.
+:: According to https://curl.se/windows/microsoft.html , curl is included by default in
+:: Windows since Windows 10, build 17603.
 ::cd %Temp%  :: CD does not work if %Temp% is on a different drive.
 curl.exe --output webimage.exe --url %URL% --retry 5 --retry-delay 5
 start /b /wait webimage.exe -s -x -f webimage_extracted --log extract.log
