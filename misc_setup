@@ -15,7 +15,7 @@ bash "$SCRIPT_DIR"/misc_lib
 # may shut down due to memory starvation. This did not happen with earlier versions of MATLAB.
 # For GITHUB_ACTIONS, RUNNER_ENVIRONMENT, and RUNNER_OS variables, see:
 # https://docs.github.com/en/actions/reference/workflows-and-actions/variables
-SWAP_SIZE=20
+SWAP_SIZE=16
 if [[ "$GITHUB_ACTIONS" == "true" && "$RUNNER_ENVIRONMENT" == "github-hosted" && "$RUNNER_OS" == "Linux" ]]; then
     bash "$SCRIPT_DIR"/resize_swap "$SWAP_SIZE"
 fi
