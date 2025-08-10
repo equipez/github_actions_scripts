@@ -2,11 +2,17 @@
 # Usage: bash install_flang
 
 REPO_NAME="flang"
+GIT_ADDR="https://github.com/zaikunzhang/$REPO_NAME.git"
 TMP_DIR="$(mktemp -d)"
 
+# If this is not a GitHub-hosted runner, we first check whether flang is already installed in the
+# default directory $FLANG_DFT. If it is, we skip the installation. Otherwise, we install flang to
+# the temporary directory $FLANG_DIR defined below. Why not install flang to $FLANG_DFT? Because we
+# prefer to install it in a temporary directory to avoid polluting the default directory.
 FLANG_DFT="$HOME/local/flang"
 
-if [[ ! -d /home/runner/work/ ]] ; then
+if [[ "$GITHUB_ACTIONS" != "true" || "$RUNNER_ENVIRONMENT" != "github-hosted" ]]; then
+    # We assume that p7zip and ncurses are already installed on self-hosted runners.
     printf "\nThe runner is not hosted by GitHub. Skip installation of p7zip and ncurses.\n"
     if [[ -d $FLANG_DFT && -f $FLANG_DFT/bin/flang && -f $FLANG_DFT/bin/flang ]] ;then
         echo "PATH=$PATH:$FLANG_DFT/bin" >> "$GITHUB_ENV"
@@ -31,23 +37,28 @@ else  # Linux
     ARCH=x86_64
 fi
 
-cd "$TMP_DIR" || exit 42
-git clone https://github.com/zaikunzhang/"$REPO_NAME".git
+# Clone the flang repository to the temporary directory
+git clone "$GIT_ADDR" "$TMP_DIR/$REPO_NAME"
+FLANG_7Z="$TMP_DIR/$REPO_NAME/$ARCH/flang.7z.001"
 
-cd "$REPO_NAME/$ARCH" || exit 42
-FLANG_7Z="flang.7z.001"
-7za x "$FLANG_7Z" -aoa  # -aoa: overwrite all existing files without prompt
-rm -f flang.7z*
+# Decompress the flang archive
+mkdir -p "$HOME"/tmp
+FLANG_DIR=$(mktemp -d -p "$HOME"/tmp/)
+7za x "$FLANG_7Z" -aoa  -o"$FLANG_DIR"  # -aoa: overwrite all existing files without prompt
+FLANG_DIR="$FLANG_DIR/flang"
+
+# Remove the temporary directory
+rm -rf "$TMP_DIR"
 
 # Set environment variable for subsequent steps
 # N.B.: The following lines will not work if this script is invoked with sudo.
 # Put flang/bin to the beginning of PATH, in case there is another flang in PATH, e.g., from AOCC.
-echo "PATH=$TMP_DIR/$REPO_NAME/$ARCH/flang/bin:$PATH" >> "$GITHUB_ENV"
-echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TMP_DIR/$REPO_NAME/$ARCH/flang/lib" >> "$GITHUB_ENV"
+echo "PATH=$FLANG_DIR/bin:$PATH" >> "$GITHUB_ENV"
+echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$FLANG_DIR/lib" >> "$GITHUB_ENV"
 
 # Show the result of the installation.
-export PATH=$TMP_DIR/$REPO_NAME/$ARCH/flang/bin:$PATH
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TMP_DIR/$REPO_NAME/$ARCH/flang/lib
+export PATH=$FLANG_DIR/bin:$PATH
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$FLANG_DIR/lib
 echo "The flang installed is:"
 flang --version
 echo "The path to flang is:"

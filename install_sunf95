@@ -2,23 +2,30 @@
 # Usage: bash install_sunf95
 
 REPO_NAME=OracleDevStd
+GIT_ADDR="https://github.com/zaikunzhang/$REPO_NAME.git"
 TMP_DIR="$(mktemp -d)"
-cd "$TMP_DIR" || exit 42
-git clone https://github.com/zaikunzhang/"$REPO_NAME".git
 
-cd "$REPO_NAME" || exit 42
-ORACLE_7Z="OracleDevStd.7z.001"
-7za x "$ORACLE_7Z" -aoa  # -aoa: overwrite all existing files without prompt
-rm -f OracleDevStd.7z*
+# Clone the OracleDevStd repository to the temporary directory
+git clone "$GIT_ADDR" "$TMP_DIR/$REPO_NAME"
+ORACLE_7Z="$TMP_DIR/$REPO_NAME/OracleDevStd.7z.001"
+
+# Decompress the OracleDevStd archive
+mkdir -p "$HOME"/tmp
+ORACLE_DIR=$(mktemp -d -p "$HOME"/tmp/)
+7za x "$ORACLE_7Z" -aoa -o"$ORACLE_DIR"  # -aoa: overwrite all existing files without prompt
+ORACLE_DIR="$ORACLE_DIR/OracleDevStd"
+
+# Remove the temporary directory
+rm -rf "$TMP_DIR"
 
 # Set environment variable for subsequent steps
-echo "PATH=$PATH:$TMP_DIR/$REPO_NAME/OracleDevStd/bin" >> "$GITHUB_ENV"
-echo "LD_LIBRARY_PATH=$TMP_DIR/$REPO_NAME/OracleDevStd/lib/compilers/sys/amd64:$TMP_DIR/$REPO_NAME/OracleDevStd/lib/compilers/sys/:$LD_LIBRARY_PATH" >> "$GITHUB_ENV"
+echo "PATH=$PATH:$ORACLE_DIR/bin" >> "$GITHUB_ENV"
+echo "LD_LIBRARY_PATH=$ORACLE_DIR/lib/compilers/sys/amd64:$ORACLE_DIR/lib/compilers/sys/:$LD_LIBRARY_PATH" >> "$GITHUB_ENV"
 
 # Show the result of the installation.
-export PATH=$PATH:$TMP_DIR/$REPO_NAME/OracleDevStd/bin
-export LD_LIBRARY_PATH=$TMP_DIR/$REPO_NAME/OracleDevStd/lib/compilers/sys/amd64:$TMP_DIR/$REPO_NAME/OracleDevStd/lib/compilers/sys/:$LD_LIBRARY_PATH
+export PATH=$PATH:$ORACLE_DIR/bin
+export LD_LIBRARY_PATH=$ORACLE_DIR/lib/compilers/sys/amd64:$ORACLE_DIR/lib/compilers/sys/:$LD_LIBRARY_PATH
 echo "The sunf95 installed is:"
-sunf95 --version
+sunf95 -V
 echo "The path to sunf95 is:"
 command -v sunf95
