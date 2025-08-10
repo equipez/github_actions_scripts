@@ -47,8 +47,6 @@ set | grep -i "intel" >> %GITHUB_ENV%
 set | grep -i "oneapi" >> %GITHUB_ENV%
 
 :: Show the result of the installation.
-echo The path to ifort is:
-where ifort.exe
 echo The path to ifx is:
 where ifx.exe
 
