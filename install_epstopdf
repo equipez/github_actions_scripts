@@ -7,5 +7,3 @@ sudo wget "$URL" -O /usr/bin/epstopdf
 sudo chmod +x /usr/bin/epstopdf
 which epstopdf
 epstopdf --version
-which kpsewhich
-kpsewhich --version
