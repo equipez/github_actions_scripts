@@ -13,11 +13,12 @@ fi
 
 if [[ "$RUNNER_OS" == "Linux" ]] ; then
     sudo apt update
-    sudo apt install -y gdb make cmake ninja-build
+    sudo apt install -y gdb make cmake ninja-build execstack
     gdb --version
     make --version
     cmake --version
     ninja --version
+    execstack --version
     # Zaikun 20250728: The following line re-installs necessary packages removed by the `large-packages`
     # section of free-disk-space@v1.3.1. This is why the script should be called AFTER free-disk-space.
     # 1. Without x11-xkb-utils, MATLAB R2025a when running `plot` crashes with an internal error:
