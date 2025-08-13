@@ -2,28 +2,57 @@
 # This script resizes the swap file to a specified size in GB.
 # Usage: bash resize_swap.sh <size_in_GB>
 
+set -eo pipefail
+
+if [[ "$GITHUB_ACTIONS" != "true" || "$RUNNER_ENVIRONMENT" != "github-hosted" || "$RUNNER_OS" != "Linux" ]]; then
+    echo "This script is intended to run only in GitHub-hosted Linux runners."
+    exit 0
+fi
+
+if [[ $# -ne 1 || ! $1 =~ ^[0-9]+$ ]]; then
+    echo "ERROR: Missing or invalid size argument. Usage: $0 <size_in_GB>" >&2
+    exit 1
+fi
+total_swap=$1
+(( total_swap <= 64 && total_swap >= 1 )) || { echo "Refusing to create <1 or >64 GiB swap" >&2; exit 1; }
+
 # Show the swap size
 echo "Swap size before resizing:"
 swapon --show
+echo "This will resize the swap to $total_swap GB."
 
-echo "This will resize the swap to $1 GB."
+# Record current active swap files (full paths) in the Bash array $old_swap_files
+mapfile -t old_swap_files < <(awk 'NR>1 && $2=="file"{print $1}' /proc/swaps)
 
-total_swap=$1
-
-# Turn off all swap processes
-sudo swapoff -a
-
-# Resize the swap
-sudo dd if=/dev/zero of=/swapfile bs=1G count=$total_swap
+# Create new swap file
+# First try to create it under /mnt, if that fails, use the root directory.
+new_swap_file="/mnt/swapfile.new"
+if  [[ ! -d /mnt ]] || ! sudo dd if=/dev/zero of="$new_swap_file" bs=1G count="$total_swap" oflag=direct status=progress; then
+    new_swap_file="/swapfile.new"
+    sudo dd if=/dev/zero of="$new_swap_file" bs=1G count="$total_swap" oflag=direct status=progress
+fi
+echo "Created swap file at $new_swap_file with size $total_swap GB."
 
 # Set up permissions
-sudo chmod 600 /swapfile
+sudo chmod 600 "$new_swap_file"
 
 # Make the file usable as swap
-sudo mkswap /swapfile
+sudo mkswap "$new_swap_file"
 
-# Activate the swap file
-sudo swapon /swapfile
+# Activate the swap file with a high priority
+sudo swapon -p 32767 "$new_swap_file" || { echo "Warning: swapon failed for $new_swap_file. Swap resizing failed!!!" >&2; exit 0; }
+
+# If there exist old swap files, disable and remove them
+if ((${#old_swap_files[@]} == 0)); then
+    echo "No old swap files found."
+else
+    echo "Old swap files to disable and remove: ${old_swap_files[*]}"
+    for f in "${old_swap_files[@]}"; do
+      sudo swapoff -- "$f" || echo "Warning: swapoff failed for $f (continuing)" >&2
+      sudo rm -f -- "$f" || echo "Warning: rm failed for $f (continuing)" >&2
+    done
+    sudo sync
+fi
 
 # Show the swap size
 echo "Swap size after resizing:"
