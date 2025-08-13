@@ -5,7 +5,7 @@
 set -eo pipefail
 
 if [[ "$GITHUB_ACTIONS" != "true" || "$RUNNER_ENVIRONMENT" != "github-hosted" || "$RUNNER_OS" != "Linux" ]]; then
-    echo "This script is intended to run only in GitHub-hosted Linux runners."
+    echo "Warning: This script is intended to run only in GitHub-hosted Linux runners. Skip execution." >&2
     exit 0
 fi
 
