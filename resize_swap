@@ -14,7 +14,7 @@ if [[ $# -ne 1 || ! $1 =~ ^[0-9]+$ ]]; then
     exit 1
 fi
 total_swap=$1
-(( total_swap <= 64 && total_swap >= 1 )) || { echo "Refusing to create <1 or >64 GiB swap" >&2; exit 1; }
+(( total_swap <= 96 && total_swap >= 1 )) || { echo "Warning: Refusing to create <1 or >96 GiB swap" >&2; exit 0; }
 
 # Show the swap size
 echo "Swap size before resizing:"
