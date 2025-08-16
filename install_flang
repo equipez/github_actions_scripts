@@ -12,8 +12,8 @@ TMP_DIR="$(mktemp -d)"
 FLANG_DFT="$HOME/local/flang"
 
 if [[ "$GITHUB_ACTIONS" != "true" || "$RUNNER_ENVIRONMENT" != "github-hosted" ]]; then
-    # We assume that p7zip and ncurses are already installed on self-hosted runners.
-    printf "\nThe runner is not hosted by GitHub. Skip installation of p7zip and ncurses.\n"
+    # We assume that ncurses are already installed on self-hosted runners.
+    printf "\nThe runner is not hosted by GitHub. Skip installation of ncurses.\n"
     if [[ -d $FLANG_DFT && -f $FLANG_DFT/bin/flang && -f $FLANG_DFT/bin/flang ]] ;then
         echo "PATH=$PATH:$FLANG_DFT/bin" >> "$GITHUB_ENV"
         echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$FLANG_DFT/lib" >> "$GITHUB_ENV"
@@ -22,9 +22,9 @@ if [[ "$GITHUB_ACTIONS" != "true" || "$RUNNER_ENVIRONMENT" != "github-hosted" ]]
     fi
 else
     if [[ "$RUNNER_OS" == "Linux" ]] ; then
-        sudo apt update && sudo apt install p7zip-full libncurses* # libncurses* needed for libtinfo.so
+        sudo apt update && sudo apt install libncurses* # libncurses* needed for libtinfo.so
     elif [[ "$RUNNER_OS" == "macOS" ]] ; then
-        brew install p7zip ncurses
+        brew install ncurses
     fi
 fi
 
@@ -39,12 +39,12 @@ fi
 
 # Clone the flang repository to the temporary directory
 git clone "$GIT_ADDR" "$TMP_DIR/$REPO_NAME"
-FLANG_7Z="$TMP_DIR/$REPO_NAME/$ARCH/flang.7z.001"
+FLANG_ARCHIVE="$TMP_DIR/$REPO_NAME/$ARCH/flang.tar.xz"
 
 # Decompress the flang archive
 mkdir -p "$HOME"/tmp
 FLANG_DIR=$(mktemp -d -p "$HOME"/tmp/)
-7za x "$FLANG_7Z" -aoa  -o"$FLANG_DIR"  # -aoa: overwrite all existing files without prompt
+cat "${FLANG_ARCHIVE}".* | tar -xJ --directory "$FLANG_DIR"
 FLANG_DIR="$FLANG_DIR/flang"
 
 # Remove the temporary directory
