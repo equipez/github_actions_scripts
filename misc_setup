@@ -25,6 +25,7 @@ fi
 echo -e "\n*********************************************************************************************\n"
 echo "System Information:"
 if [[ "$RUNNER_OS" == "Linux" ]]; then
+    uname -a
     lscpu
     lsmem
     df -h

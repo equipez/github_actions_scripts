@@ -9,12 +9,12 @@
 
 # Set ROOT_DIR to the root directory of the current repo.
 ROOT_DIR="$(pwd -P)"  # `realpath` is unavailable on macOS; -P is needed
-echo "$ROOT_DIR"
+echo "ROOT_DIR=$ROOT_DIR"
 echo "ROOT_DIR=$ROOT_DIR" >> "$GITHUB_ENV"
 
 # Set TEST_DIR to a random directory. It is needed in the Makefiles for the Fortran tests of PRIMA.
 TEST_DIR=/tmp/gittest_$(date +%s)_"$((RANDOM*RANDOM))"
-echo "$TEST_DIR"
+echo "TEST_DIR=$TEST_DIR"
 echo "TEST_DIR=$TEST_DIR" >> "$GITHUB_ENV"
 
 # Set SEDI to either 'sed -i ""' (macOS) or 'sed -i' (Linux/Windows).
@@ -26,32 +26,29 @@ if [[ "$RUNNER_OS" = "macOS" ]] ; then
 else
     SEDI='sed -i'
 fi
-echo "$SEDI"
+echo "SEDI=$SEDI"
 echo "SEDI=$SEDI" >> "$GITHUB_ENV"
 
 # Set GFORTRAN_VERSION to the version of gfortran used when mexifying and linting Fortran code.
 # In principle, it is the latest gfortran version at https://github.com/fortran-lang/setup-fortran#runner-compatibility
-GFORTRAN_VERSION="14"  # Default version
-
+GFORTRAN_VERSION="14"  # Default version as of 20250904
+# However, on some older images, the latest gfortran is unavailable. In that case, downgrade it.
 IMAGEOS="${ImageOS:-}"
+# Ubuntu 22.04 images usually expose ImageOS like "ubuntu22" or "ubuntu22-*"
+# Windows Server 2022 images expose ImageOS like "win22" or "windows2022"
+# macOS 13 images expose ImageOS like "macos13" or "macos13-*"
 echo "Running on ${IMAGEOS}"
 lower() { echo "$1" | tr '[:upper:]' '[:lower:]'; }
-# Match specific images
 case "$(lower "${IMAGEOS}")" in
-  # Ubuntu 22.04 images usually expose ImageOS like "ubuntu22" or "ubuntu22-*"
-  ubuntu22* )
-    GFORTRAN_VERSION="13"
-    ;;
-  # Windows Server 2022 images expose ImageOS like "win22" or "windows2022"
-  win22* | windows2022* )
-    GFORTRAN_VERSION="13"
-    ;;
-  #macos13* )
-  #  GFORTRAN_VERSION="13"
-  #  ;;
+    ubuntu22* | win22* | windows2022* )
+        GFORTRAN_VERSION="$(( GFORTRAN_VERSION - 1 ))"
+        ;;
+    #macos13* )
+    #    GFORTRAN_VERSION="13"
+    #    ;;
 esac
 
-echo "$GFORTRAN_VERSION"
+echo "GFORTRAN_VERSION=$GFORTRAN_VERSION"
 echo "GFORTRAN_VERSION=$GFORTRAN_VERSION" >> "$GITHUB_ENV"
 
 # The following does not work. Why?
