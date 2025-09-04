@@ -30,7 +30,27 @@ echo "$SEDI"
 echo "SEDI=$SEDI" >> "$GITHUB_ENV"
 
 # Set GFORTRAN_VERSION to the version of gfortran used when mexifying and linting Fortran code.
-GFORTRAN_VERSION=14
+# In principle, it is the latest gfortran version at https://github.com/fortran-lang/setup-fortran#runner-compatibility
+GFORTRAN_VERSION="14"  # Default version
+
+IMAGEOS="${ImageOS:-}"
+echo "Running on ${IMAGEOS}"
+lower() { echo "$1" | tr '[:upper:]' '[:lower:]'; }
+# Match specific images
+case "$(lower "${IMAGEOS}")" in
+  # Ubuntu 22.04 images usually expose ImageOS like "ubuntu22" or "ubuntu22-*"
+  ubuntu22* )
+    GFORTRAN_VERSION="13"
+    ;;
+  # Windows Server 2022 images expose ImageOS like "win22" or "windows2022"
+  win22* | windows2022* )
+    GFORTRAN_VERSION="13"
+    ;;
+  #macos13* )
+  #  GFORTRAN_VERSION="13"
+  #  ;;
+esac
+
 echo "$GFORTRAN_VERSION"
 echo "GFORTRAN_VERSION=$GFORTRAN_VERSION" >> "$GITHUB_ENV"
 
