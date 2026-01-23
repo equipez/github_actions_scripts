@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # Usage: bash install_aocc
+#
+sudo apt update && sudo apt install 7zip-standalone libncurses* -y  # libncurses* needed for libtinfo.so
 
 REPO_NAME=aocc_flang
 TMP_DIR="$(mktemp -d)"
@@ -10,7 +12,6 @@ cd "$REPO_NAME" || exit 42
 AOCC_7Z="aocc_flang.deb.7z.001"
 7za x "$AOCC_7Z" -aoa  # -aoa: overwrite all existing files without prompt
 
-sudo apt update && sudo apt install p7zip-full libncurses* -y  # libncurses* needed for libtinfo.so
 sudo dpkg -i "$TMP_DIR"/"$REPO_NAME"/aocc_flang.deb
 cd ~ && rm -rf "$TMP_DIR" || exit 42
 
