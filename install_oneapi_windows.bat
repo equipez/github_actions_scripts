@@ -10,7 +10,7 @@
 :: URL for the offline installer of Intel OneAPI Fortran compiler. To get the latest URL, visit
 :: https://www.intel.com/content/www/us/en/developer/tools/oneapi/fortran-compiler-download.html
 :: and click on the "Continue as a Guest (download starts immediately)" button.
-:: Default version: 2025.3.0 (updated on 20260125)
+:: Default version: 2025.3.2 (updated on 20260125)
 set URL=https://registrationcenter-download.intel.com/akdlm/IRC_NAS/039121f2-d488-4bc1-a5bb-97528e3a4b86/intel-fortran-compiler-2025.3.2.26_offline.exe
 if "%1"=="2024" (
     set URL=https://registrationcenter-download.intel.com/akdlm/IRC_NAS/f6a44238-5cb6-4787-be83-2ef48bc70cba/w_fortran-compiler_p_2024.1.0.466_offline.exe
