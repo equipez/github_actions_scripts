@@ -29,28 +29,6 @@ fi
 echo "SEDI=$SEDI"
 echo "SEDI=$SEDI" >> "$GITHUB_ENV"
 
-# Set GFORTRAN_VERSION to the version of gfortran used when mexifying and linting Fortran code.
-# In principle, it is the latest gfortran version at https://github.com/fortran-lang/setup-fortran#runner-compatibility
-GFORTRAN_VERSION="14"  # Default version as of 20250904
-# However, on some older images, the latest gfortran is unavailable. In that case, downgrade it.
-IMAGEOS="${ImageOS:-}"
-# Ubuntu 22.04 images usually expose ImageOS like "ubuntu22" or "ubuntu22-*"
-# Windows Server 2022 images expose ImageOS like "win22" or "windows2022"
-# macOS 13 images expose ImageOS like "macos13" or "macos13-*"
-echo "Running on ${IMAGEOS}"
-lower() { echo "$1" | tr '[:upper:]' '[:lower:]'; }
-case "$(lower "${IMAGEOS}")" in
-    ubuntu22* | win22* | windows2022* )
-        GFORTRAN_VERSION="$(( GFORTRAN_VERSION - 1 ))"
-        ;;
-    #macos13* )
-    #    GFORTRAN_VERSION="13"
-    #    ;;
-esac
-
-echo "GFORTRAN_VERSION=$GFORTRAN_VERSION"
-echo "GFORTRAN_VERSION=$GFORTRAN_VERSION" >> "$GITHUB_ENV"
-
 # The following does not work. Why?
 # Make tools such as grep, make, and git available on Windows.
 #if [[ "$RUNNER_OS" = "Windows" ]] ; then
