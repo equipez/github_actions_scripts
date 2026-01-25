@@ -1,0 +1,163 @@
+#!/usr/bin/env bash
+# Script to download the latest AOMP release for Ubuntu (amd64/x86_64)
+# Usage: bash install_aomp
+
+set -euo pipefail
+
+# Allow update to fail (|| true) but proceed to install
+sudo apt update || true
+sudo apt install -y curl jq libelf-dev libzstd-dev  # jq needed for GitHub API parsing
+
+# Make a temp directory and move into it
+TEMP_DIR="$(mktemp -d)"
+cleanup() {
+    # Only remove if it still exists
+    [[ -n "${TEMP_DIR:-}" && -d "${TEMP_DIR}" ]] && rm -rf -- "${TEMP_DIR}"
+    TEMP_DIR=""  # Prevent double cleanup
+}
+
+trap cleanup EXIT
+
+echo "--> Created temporary directory: ${TEMP_DIR}"
+cd "${TEMP_DIR}"
+echo "--> Changed to ${TEMP_DIR}"
+
+echo "Determining local Ubuntu version..."
+
+# Get Ubuntu version
+if [[ -r /etc/os-release ]]; then
+    . /etc/os-release
+    if [[ "${ID:-}" != "ubuntu" ]]; then
+        echo "Error: This script is intended for Ubuntu. Detected ID=${ID:-unknown}" >&2
+        exit 1
+    fi
+    UBUNTU_VERSION="${VERSION_ID:-}"
+else
+    echo "Error: Cannot determine Ubuntu version" >&2
+    exit 1
+fi
+if [[ -z "${UBUNTU_VERSION}" ]]; then
+    echo "Error: VERSION_ID not found in /etc/os-release" >&2
+    exit 1
+fi
+echo "--> Detected Ubuntu version: ${UBUNTU_VERSION}"
+
+# Convert version number, e.g., "24.04" -> 2404, for comparisons
+LOCAL_UBU_NUM="$(printf '%s' "${UBUNTU_VERSION}" | tr -d '.')"
+if ! [[ "${LOCAL_UBU_NUM}" =~ ^[0-9]+$ ]]; then
+    echo "Error: Unexpected Ubuntu VERSION_ID format: ${UBUNTU_VERSION}" >&2
+    exit 1
+fi
+
+echo "Fetching latest AOMP release information..."
+
+# Fetch more than the default 30 releases to be safer with pagination.
+GITHUB_API_URL="https://api.github.com/repos/ROCm/aomp/releases?per_page=100"
+TMP_JSON_FILE="${TEMP_DIR}/github_response.json"
+HTTP_CODE=$(curl -sSL -w "%{http_code}" -o "${TMP_JSON_FILE}" -H "Accept: application/vnd.github+json" "${GITHUB_API_URL}")
+if [[ "${HTTP_CODE}" -ne 200 ]] || ! jq -e 'type == "array"' "${TMP_JSON_FILE}" >/dev/null 2>&1; then
+    echo "Error: GitHub API returned HTTP ${HTTP_CODE} or invalid response" >&2
+    exit 1
+fi
+GITHUB_RESPONSE="$(cat "${TMP_JSON_FILE}")"
+
+# Pick the latest AOMP release that contains at least one suitable asset.
+RELEASE_JSON="$(
+    jq -c '
+    def ok_asset_name:
+    (.name // "" | ascii_downcase) as $n
+    | ($n | endswith(".deb"))
+    and ($n | contains("aomp"))
+    and ($n | contains("ubuntu"))
+    and ( ($n | contains("amd64")) or ($n | contains("x86_64")) )
+    and ($n | test("(^|[^a-z])hip_") | not)
+    and ($n | test("(^|[^a-z])hip-") | not);
+
+    [ .[]
+    | select(.draft | not)
+    | select(.prerelease | not)
+    | select(any(.assets[]?; ok_asset_name))
+    ]
+    | sort_by(.published_at // .created_at // "1970-01-01T00:00:00Z")
+    | reverse
+    | .[0]
+    ' <<<"${GITHUB_RESPONSE}"
+    )"
+if [[ "${RELEASE_JSON}" == "null" ]]; then
+    echo "Error: No suitable AOMP release found (matching asset criteria) in GitHub response." >&2
+    exit 1
+fi
+
+# Select the newest Ubuntu asset available subject to <= local Ubuntu release.
+# Asset names commonly include "Ubuntu2404" etc. We extract that number and compare.
+BEST_LINE="$(
+    jq -r --argjson local "${LOCAL_UBU_NUM}" '
+    def ok_asset_name:
+    (.name // "" | ascii_downcase) as $n
+    | ($n | endswith(".deb"))
+    and ($n | contains("aomp"))
+    and ($n | contains("ubuntu"))
+    and ( ($n | contains("amd64")) or ($n | contains("x86_64")) )
+    and ($n | test("(^|[^a-z])hip_") | not)
+    and ($n | test("(^|[^a-z])hip-") | not);
+
+    .assets[]?
+    | select(ok_asset_name)
+    | . as $a
+    | ($a.name | capture("ubuntu[-_.]?(?<v>[0-9]{2}[.]?[0-9]{2})"; "i")? | .v // empty) as $raw_v
+    | select($raw_v != "")
+    | ($raw_v | sub("\\."; "") | tonumber) as $vn
+    | select($vn <= $local)
+    | [$vn, $a.name, $a.browser_download_url] | @tsv
+    ' <<<"${RELEASE_JSON}" \
+        | sort -t$'\t' -k1,1nr \
+        | head -n1
+    )"
+
+if [[ -z "${BEST_LINE}" ]]; then
+    echo "Error: No Ubuntu amd64/x86_64 .deb asset found with Ubuntu version <= ${UBUNTU_VERSION}." >&2
+    echo "Available assets in this release were:" >&2
+    jq -r '.assets[]?.name' <<<"${RELEASE_JSON}" >&2
+    exit 1
+fi
+
+ASSET_UBU_NUM="$(cut -f1 <<<"${BEST_LINE}")"
+FILENAME="$(cut -f2 <<<"${BEST_LINE}")"
+DOWNLOAD_URL="$(cut -f3 <<<"${BEST_LINE}")"
+
+echo "--> Selected Ubuntu asset: ${ASSET_UBU_NUM} (<= ${UBUNTU_VERSION})"
+echo "--> Downloading: ${FILENAME}"
+echo "--> URL: ${DOWNLOAD_URL}"
+
+# Download the package
+curl -fL -o "${FILENAME}" "${DOWNLOAD_URL}"
+echo "--> Downloaded: ${FILENAME}"
+
+# Verify it's a valid .deb file
+if ! dpkg-deb -I "${FILENAME}" >/dev/null 2>&1; then
+    echo "Downloaded file is not a valid .deb package" >&2
+    exit 1
+fi
+
+# Install the package (APT resolves dependencies; dpkg alone does not)
+echo "--> Installing the package..."
+sudo apt install -y "./${FILENAME}"
+
+# Final messages
+echo "--> AOMP installation completed."
+AOMP_DIR="/usr/lib/aomp"
+export PATH=$PATH:$AOMP_DIR/bin
+echo -e "\nThe amdflang version is:\n"
+amdflang --version
+echo -e "\nThe path to amdflang is:\n"
+command -v amdflang
+echo -e "\nTo use AOMP, you may need to add to your PATH:"
+echo -e "\n\texport PATH=\$PATH:$AOMP_DIR/bin\n"
+echo "Maybe also set LD_LIBRARY_PATH:"
+echo -e "\n\texport LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:$AOMP_DIR/lib\n"
+echo -e "Add these lines to your ~/.bashrc or ~/.profile for persistence.\n"
+
+# Set environment variable for subsequent steps
+echo "PATH=$PATH:$AOMP_DIR/bin" >> "$GITHUB_ENV"
+
+# Cleanup is handled by trap on EXIT
