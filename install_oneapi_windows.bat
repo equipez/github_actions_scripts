@@ -10,19 +10,13 @@
 :: URL for the offline installer of Intel OneAPI Fortran compiler. To get the latest URL, visit
 :: https://www.intel.com/content/www/us/en/developer/tools/oneapi/fortran-compiler-download.html
 :: and click on the "Continue as a Guest (download starts immediately)" button.
-:: Default version: 2025.2.0 (updated on 20250731)
-set URL=https://registrationcenter-download.intel.com/akdlm/IRC_NAS/d500a63b-e481-465d-b1a3-64a6981d25f1/intel-fortran-compiler-2025.2.0.535_offline.exe
+:: Default version: 2025.3.0 (updated on 20260125)
+set URL=https://registrationcenter-download.intel.com/akdlm/IRC_NAS/039121f2-d488-4bc1-a5bb-97528e3a4b86/intel-fortran-compiler-2025.3.2.26_offline.exe
 if "%1"=="2024" (
     set URL=https://registrationcenter-download.intel.com/akdlm/IRC_NAS/f6a44238-5cb6-4787-be83-2ef48bc70cba/w_fortran-compiler_p_2024.1.0.466_offline.exe
 )
 if "%1"=="2023" (
     set URL=https://registrationcenter-download.intel.com/akdlm/IRC_NAS/1720594b-b12c-4aca-b7fb-a7d317bac5cb/w_fortran-compiler_p_2023.2.1.7_offline.exe
-)
-if "%1"=="2022" (
-    set URL=https://registrationcenter-download.intel.com/akdlm/irc_nas/18976/w_HPCKit_p_2022.3.1.19755_offline.exe
-)
-if "%1"=="2021" (
-    set URL=https://registrationcenter-download.intel.com/akdlm/irc_nas/18247/w_HPCKit_p_2021.4.0.3340_offline.exe
 )
 
 :: Component to install.

@@ -7,20 +7,10 @@
 #
 # Zaikun Zhang (www.zhangzk.net), January 9, 2023
 
-# URL for the offline installer of Intel OneAPI Fortran compiler. To get the latest URL, search for
-# "Intel Fortran Compiler Classic for macOS" at
-# https://www.intel.com/content/www/us/en/developer/articles/tool/oneapi-standalone-components.html
-# and take the URL for the "Offline" installer.
+# URL for the offline installer of Intel OneAPI Fortran compiler. 
 # Default version: 2023.2.0 (updated on 20231015)
+# Intel does not support macOS anymore since version 2024.
 URL="https://registrationcenter-download.intel.com/akdlm/IRC_NAS/2fbce033-15f4-4e13-8d14-f5a2016541ce/m_fortran-compiler-classic_p_2023.2.0.49001_offline.dmg"
-if [[ $# -ge 1 ]] ; then
-    if [[ $1 = "2022" ]] ; then
-        URL="https://registrationcenter-download.intel.com/akdlm/irc_nas/18977/m_HPCKit_p_2022.3.1.15344_offline.dmg"
-    fi
-    if [[ $1 = "2021" ]] ; then
-        URL="https://registrationcenter-download.intel.com/akdlm/irc_nas/18242/m_HPCKit_p_2021.4.0.3389_offline.dmg"
-    fi
-fi
 
 # Component to install.
 COMPONENTS=intel.oneapi.mac.ifort-compiler
