@@ -58,11 +58,12 @@ echo "Fetching latest AOMP release information..."
 GITHUB_API_URL="https://api.github.com/repos/ROCm/aomp/releases?per_page=100"
 TMP_JSON_FILE="${TEMP_DIR}/github_response.json"
 HTTP_CODE=$(curl -sSL -w "%{http_code}" -o "${TMP_JSON_FILE}" -H "Accept: application/vnd.github+json" "${GITHUB_API_URL}")
+GITHUB_RESPONSE="$(cat "${TMP_JSON_FILE}")"
 if [[ "${HTTP_CODE}" -ne 200 ]] || ! jq -e 'type == "array"' "${TMP_JSON_FILE}" >/dev/null 2>&1; then
-    echo "Error: GitHub API returned HTTP ${HTTP_CODE} or invalid response" >&2
+    echo "Error: GitHub API returned HTTP ${HTTP_CODE} or invalid response." >&2
+    echo -e "\nThe response is as follows:\n$GITHUB_RESPONSE"
     exit 1
 fi
-GITHUB_RESPONSE="$(cat "${TMP_JSON_FILE}")"
 
 # Pick the latest AOMP release that contains at least one suitable asset.
 RELEASE_JSON="$(
@@ -88,6 +89,7 @@ RELEASE_JSON="$(
     )"
 if [[ "${RELEASE_JSON}" == "null" ]]; then
     echo "Error: No suitable AOMP release found (matching asset criteria) in GitHub response." >&2
+    echo -e "\nThe response is as follows:\n$GITHUB_RESPONSE"
     exit 1
 fi
 
