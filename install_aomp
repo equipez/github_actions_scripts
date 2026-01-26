@@ -139,7 +139,7 @@ if ! dpkg-deb -I "${FILENAME}" >/dev/null 2>&1; then
     exit 1
 fi
 
-# Install the package (APT resolves dependencies; dpkg alone does not)
+# Install the package (apt resolves dependencies; dpkg alone does not)
 echo "--> Installing the package..."
 sudo apt install -y "./${FILENAME}"
 

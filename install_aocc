@@ -12,7 +12,8 @@ cd "$REPO_NAME" || exit 42
 AOCC_7Z="aocc_flang.deb.7z.001"
 7za x "$AOCC_7Z" -aoa  # -aoa: overwrite all existing files without prompt
 
-sudo dpkg -i "$TMP_DIR"/"$REPO_NAME"/aocc_flang.deb
+# Install the package (apt resolves dependencies; dpkg alone does not)
+sudo apt install -y "$TMP_DIR"/"$REPO_NAME"/aocc_flang.deb
 cd ~ && rm -rf "$TMP_DIR" || exit 42
 
 # Run the script that sets the necessary environment variables and then damp them to $GITHUB_ENV
