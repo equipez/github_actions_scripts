@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
-# Script to download the latest AOMP release for Ubuntu (amd64/x86_64)
+# Script to install the latest AOMP release for Ubuntu (amd64/x86_64)
 # Usage: bash install_aomp
+#
+# N.B.: The most technical part is to download the correct .deb package from GitHub releases.
+# After that, installation is done via a simple invocation of apt.
 
 set -euo pipefail
 
