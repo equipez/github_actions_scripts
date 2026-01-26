@@ -61,7 +61,7 @@ HTTP_CODE=$(curl -sSL -w "%{http_code}" -o "${TMP_JSON_FILE}" -H "Accept: applic
 GITHUB_RESPONSE="$(cat "${TMP_JSON_FILE}")"
 if [[ "${HTTP_CODE}" -ne 200 ]] || ! jq -e 'type == "array"' "${TMP_JSON_FILE}" >/dev/null 2>&1; then
     echo "Error: GitHub API returned HTTP ${HTTP_CODE} or invalid response." >&2
-    echo -e "\nThe response is as follows:\n$GITHUB_RESPONSE"
+    echo -e "\nThe response is as follows:\n\n$GITHUB_RESPONSE\n"
     exit 1
 fi
 
@@ -89,7 +89,7 @@ RELEASE_JSON="$(
     )"
 if [[ "${RELEASE_JSON}" == "null" ]]; then
     echo "Error: No suitable AOMP release found (matching asset criteria) in GitHub response." >&2
-    echo -e "\nThe response is as follows:\n$GITHUB_RESPONSE"
+    echo -e "\nThe response is as follows:\n\n$GITHUB_RESPONSE\n"
     exit 1
 fi
 
