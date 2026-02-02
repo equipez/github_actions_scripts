@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# Install Arm Fortran Compiler (armflang) on a Linux system.
+# Usage: ./install_armflang.sh
+
+set -euo pipefail
+
+# Make module command available
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y environment-modules
+
+# Install Arm Fortran Compiler
+# See https://developer.arm.com/Tools%20and%20Software/Arm%20Compiler%20for%20Linux#Downloads
+( printf '\n\n\nyes\n' ) | bash <(curl -fsSL https://developer.arm.com/-/cdn-downloads/permalink/Arm-Compiler-for-Linux/Package/install.sh)
+
+# Initialize module command
+if [ -f /usr/share/modules/init/bash ]; then
+    source /usr/share/modules/init/bash
+elif [ -f /etc/profile.d/modules.sh ]; then
+    source /etc/profile.d/modules.sh
+else
+    echo "Warning: Module initialization script not found." >&2
+fi
+
+# Add Arm modulefiles
+module use /opt/arm/modulefiles
+
+# List available modules
+module avail
+
+# Load Arm C and Fortran compiler module
+module load acfl
+# Load Arm Performance Libraries module
+module load armpl
+
+# Verify installation
+echo "Arm Fortran Compiler (armflang) information:"
+which armflang
+armflang --version
+
+# Export relevant environment variables for GitHub Actions
+env | grep -i 'arm\|flang\|acfl' >> "$GITHUB_ENV"
