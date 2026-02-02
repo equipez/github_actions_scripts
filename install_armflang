@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Install Arm Fortran Compiler (armflang) on a Linux system.
-# Usage: ./install_armflang.sh
+# Usage: ./install_armflang
 
 set -euo pipefail
 
