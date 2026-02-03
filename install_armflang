@@ -65,7 +65,7 @@ until false; do
     module load armpl
 
     # Verify installation
-    type armflang && break || echo "armflang not found after installation, which probably failed." >&2
+    type armflang > /dev/null 2>&1 && break || echo "armflang not found after the installation, which probably failed." >&2
 
     RETRY_TIMES=$((RETRY_TIMES + 1))
 

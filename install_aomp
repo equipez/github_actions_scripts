@@ -5,6 +5,9 @@
 # N.B.: The most technical part is to download the correct .deb package from GitHub releases.
 # After that, installation is done via a simple invocation of apt.
 
+# Default directory where AOMP is installed. Modify if needed.
+AOMP_DIR="/usr/lib/aomp"
+
 set -uo pipefail
 
 # Allow update to fail (|| true) but proceed to install
@@ -167,7 +170,8 @@ until false; do
     sudo apt install -y "./${FILENAME}"
 
     # Verify installation
-    type amdflang && break || echo "amdflang not found after installation, which probably failed." >&2
+    export PATH=$PATH:$AOMP_DIR/bin
+    type amdflang > /dev/null 2>&1 && break || echo "amdflang not working after the installation, which probably failed." >&2
 
     RETRY_TIMES=$((RETRY_TIMES + 1))
 
@@ -183,8 +187,6 @@ done
 
 # Final messages
 echo "--> AOMP installation completed."
-AOMP_DIR="/usr/lib/aomp"
-export PATH=$PATH:$AOMP_DIR/bin
 echo -e "\nThe amdflang version is:\n"
 amdflang --version
 echo -e "\nThe path to amdflang is:\n"
