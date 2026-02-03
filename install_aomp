@@ -5,34 +5,35 @@
 # N.B.: The most technical part is to download the correct .deb package from GitHub releases.
 # After that, installation is done via a simple invocation of apt.
 
-set -euo pipefail
+set -uo pipefail
 
 # Allow update to fail (|| true) but proceed to install
 sudo apt update || true
 sudo apt install -y curl jq libelf-dev libzstd-dev  # jq needed for GitHub API parsing
 
-# Create a custom curl wrapper to enforce HTTP/1.1 and IPv4, with retries and timeouts.
-mkdir -p "$HOME/bin" && cat >"$HOME/bin/curl" <<'EOF'
-#!/usr/bin/env bash
-exec /usr/bin/curl --http1.1 -4 -L -C - --retry 5 --retry-connrefused --retry-delay 5 --no-keepalive --limit-rate 50M --connect-timeout 30 --max-time 1800 "$@"
-EOF
-chmod +x "$HOME/bin/curl"
-export PATH="$HOME/bin:$PATH"
-which curl
-
 # Make a temp directory and move into it
-TEMP_DIR="$(mktemp -d)"
+TMP_DIR="$(mktemp -d)"
 cleanup() {
     # Only remove if it still exists
-    [[ -n "${TEMP_DIR:-}" && -d "${TEMP_DIR}" ]] && rm -rf -- "${TEMP_DIR}"
-    TEMP_DIR=""  # Prevent double cleanup
+    [[ -n "${TMP_DIR:-}" && -d "${TMP_DIR}" ]] && rm -rf -- "${TMP_DIR}"
+    TMP_DIR=""  # Prevent double cleanup
 }
 
 trap cleanup EXIT
 
-echo "--> Created temporary directory: ${TEMP_DIR}"
-cd "${TEMP_DIR}"
-echo "--> Changed to ${TEMP_DIR}"
+echo "--> Created temporary directory: ${TMP_DIR}"
+cd "${TMP_DIR}" || exit 1
+echo "--> Changed to ${TMP_DIR}"
+
+# Create a custom curl wrapper to enforce HTTP/1.1 and IPv4, with retries and timeouts.
+# Useful in CI environments with occasional network issues.
+cat >"$TMP_DIR/curl" <<'EOF'
+#!/usr/bin/env bash
+exec /usr/bin/curl --http1.1 -4 -L -C - --retry 5 --retry-connrefused --retry-delay 5 --no-keepalive --limit-rate 50M --connect-timeout 30 --max-time 1800 "$@"
+EOF
+chmod +x "$TMP_DIR/curl"
+export PATH="$TMP_DIR:$PATH"
+type curl
 
 echo "Determining local Ubuntu version..."
 
@@ -61,101 +62,126 @@ if ! [[ "${LOCAL_UBU_NUM}" =~ ^[0-9]+$ ]]; then
     exit 1
 fi
 
-echo "Fetching latest AOMP release information..."
+# Install AOMP
+# See https://github.com/ROCm/aomp/releases
+# It fails very often due to network issues or GitHub API limits, so we retry until it works.
+# We retry for at most $RETRY_MAX times with a delay of $RETRY_DELAY seconds between attempts.
+RETRY_TIMES=0
+RETRY_MAX=10
+RETRY_DELAY=120  # seconds; longer delay to avoid GitHub rate limits
 
-# Fetch more than the default 30 releases to be safer with pagination.
-GITHUB_API_URL="https://api.github.com/repos/ROCm/aomp/releases?per_page=100"
-TMP_JSON_FILE="${TEMP_DIR}/github_response.json"
-HTTP_CODE=$(curl -sSL -w "%{http_code}" -o "${TMP_JSON_FILE}" -H "Accept: application/vnd.github+json" "${GITHUB_API_URL}")
-GITHUB_RESPONSE="$(cat "${TMP_JSON_FILE}")"
-if [[ "${HTTP_CODE}" -ne 200 ]] || ! jq -e 'type == "array"' "${TMP_JSON_FILE}" >/dev/null 2>&1; then
-    echo "Error: GitHub API returned HTTP ${HTTP_CODE} or invalid response." >&2
-    echo -e "\nThe response is as follows:\n\n$GITHUB_RESPONSE\n"
-    exit 1
-fi
+until false; do
 
-# Pick the latest AOMP release that contains at least one suitable asset.
-RELEASE_JSON="$(
-    jq -c '
-    def ok_asset_name:
-    (.name // "" | ascii_downcase) as $n
-    | ($n | endswith(".deb"))
-    and ($n | contains("aomp"))
-    and ($n | contains("ubuntu"))
-    and ( ($n | contains("amd64")) or ($n | contains("x86_64")) )
-    and ($n | test("(^|[^a-z])hip_") | not)
-    and ($n | test("(^|[^a-z])hip-") | not);
+    echo "Fetching latest AOMP release information..."
 
-    [ .[]
-    | select(.draft | not)
-    | select(.prerelease | not)
-    | select(any(.assets[]?; ok_asset_name))
-    ]
-    | sort_by(.published_at // .created_at // "1970-01-01T00:00:00Z")
-    | reverse
-    | .[0]
-    ' <<<"${GITHUB_RESPONSE}"
-    )"
-if [[ "${RELEASE_JSON}" == "null" ]]; then
-    echo "Error: No suitable AOMP release found (matching asset criteria) in GitHub response." >&2
-    echo -e "\nThe response is as follows:\n\n$GITHUB_RESPONSE\n"
-    exit 1
-fi
+    # Fetch more than the default 30 releases to be safer with pagination.
+    GITHUB_API_URL="https://api.github.com/repos/ROCm/aomp/releases?per_page=100"
+    TMP_JSON_FILE="${TMP_DIR}/github_response.json"
+    HTTP_CODE=$(curl -sSL -w "%{http_code}" -o "${TMP_JSON_FILE}" -H "Accept: application/vnd.github+json" "${GITHUB_API_URL}")
+    GITHUB_RESPONSE="$(cat "${TMP_JSON_FILE}")"
+    if [[ "${HTTP_CODE}" -ne 200 ]] || ! jq -e 'type == "array"' "${TMP_JSON_FILE}" >/dev/null 2>&1; then
+        echo "Error: GitHub API returned HTTP ${HTTP_CODE} or invalid response." >&2
+        echo -e "\nThe response is as follows:\n\n$GITHUB_RESPONSE\n"
+        exit 1
+    fi
 
-# Select the newest Ubuntu asset available subject to <= local Ubuntu release.
-# Asset names commonly include "Ubuntu2404" etc. We extract that number and compare.
-BEST_LINE="$(
-    jq -r --argjson local "${LOCAL_UBU_NUM}" '
-    def ok_asset_name:
-    (.name // "" | ascii_downcase) as $n
-    | ($n | endswith(".deb"))
-    and ($n | contains("aomp"))
-    and ($n | contains("ubuntu"))
-    and ( ($n | contains("amd64")) or ($n | contains("x86_64")) )
-    and ($n | test("(^|[^a-z])hip_") | not)
-    and ($n | test("(^|[^a-z])hip-") | not);
+    # Pick the latest AOMP release that contains at least one suitable asset.
+    RELEASE_JSON="$(
+        jq -c '
+        def ok_asset_name:
+        (.name // "" | ascii_downcase) as $n
+        | ($n | endswith(".deb"))
+        and ($n | contains("aomp"))
+        and ($n | contains("ubuntu"))
+        and ( ($n | contains("amd64")) or ($n | contains("x86_64")) )
+        and ($n | test("(^|[^a-z])hip_") | not)
+        and ($n | test("(^|[^a-z])hip-") | not);
 
-    .assets[]?
-    | select(ok_asset_name)
-    | . as $a
-    | ($a.name | capture("ubuntu[-_.]?(?<v>[0-9]{2}[.]?[0-9]{2})"; "i")? | .v // empty) as $raw_v
-    | select($raw_v != "")
-    | ($raw_v | sub("\\."; "") | tonumber) as $vn
-    | select($vn <= $local)
-    | [$vn, $a.name, $a.browser_download_url] | @tsv
-    ' <<<"${RELEASE_JSON}" \
-        | sort -t$'\t' -k1,1nr \
-        | head -n1
-    )"
+        [ .[]
+        | select(.draft | not)
+        | select(.prerelease | not)
+        | select(any(.assets[]?; ok_asset_name))
+        ]
+        | sort_by(.published_at // .created_at // "1970-01-01T00:00:00Z")
+        | reverse
+        | .[0]
+        ' <<<"${GITHUB_RESPONSE}"
+        )"
+    if [[ "${RELEASE_JSON}" == "null" ]]; then
+        echo "Error: No suitable AOMP release found (matching asset criteria) in GitHub response." >&2
+        echo -e "\nThe response is as follows:\n\n$GITHUB_RESPONSE\n"
+        exit 1
+    fi
 
-if [[ -z "${BEST_LINE}" ]]; then
-    echo "Error: No Ubuntu amd64/x86_64 .deb asset found with Ubuntu version <= ${UBUNTU_VERSION}." >&2
-    echo "Available assets in this release were:" >&2
-    jq -r '.assets[]?.name' <<<"${RELEASE_JSON}" >&2
-    exit 1
-fi
+    # Select the newest Ubuntu asset available subject to <= local Ubuntu release.
+    # Asset names commonly include "Ubuntu2404" etc. We extract that number and compare.
+    BEST_LINE="$(
+        jq -r --argjson local "${LOCAL_UBU_NUM}" '
+        def ok_asset_name:
+        (.name // "" | ascii_downcase) as $n
+        | ($n | endswith(".deb"))
+        and ($n | contains("aomp"))
+        and ($n | contains("ubuntu"))
+        and ( ($n | contains("amd64")) or ($n | contains("x86_64")) )
+        and ($n | test("(^|[^a-z])hip_") | not)
+        and ($n | test("(^|[^a-z])hip-") | not);
 
-ASSET_UBU_NUM="$(cut -f1 <<<"${BEST_LINE}")"
-FILENAME="$(cut -f2 <<<"${BEST_LINE}")"
-DOWNLOAD_URL="$(cut -f3 <<<"${BEST_LINE}")"
+        .assets[]?
+        | select(ok_asset_name)
+        | . as $a
+        | ($a.name | capture("ubuntu[-_.]?(?<v>[0-9]{2}[.]?[0-9]{2})"; "i")? | .v // empty) as $raw_v
+        | select($raw_v != "")
+        | ($raw_v | sub("\\."; "") | tonumber) as $vn
+        | select($vn <= $local)
+        | [$vn, $a.name, $a.browser_download_url] | @tsv
+        ' <<<"${RELEASE_JSON}" \
+            | sort -t$'\t' -k1,1nr \
+            | head -n1
+        )"
 
-echo "--> Selected Ubuntu asset: ${ASSET_UBU_NUM} (<= ${UBUNTU_VERSION})"
-echo "--> Downloading: ${FILENAME}"
-echo "--> URL: ${DOWNLOAD_URL}"
+    if [[ -z "${BEST_LINE}" ]]; then
+        echo "Error: No Ubuntu amd64/x86_64 .deb asset found with Ubuntu version <= ${UBUNTU_VERSION}." >&2
+        echo "Available assets in this release were:" >&2
+        jq -r '.assets[]?.name' <<<"${RELEASE_JSON}" >&2
+        exit 1
+    fi
 
-# Download the package
-curl -fL -o "${FILENAME}" "${DOWNLOAD_URL}"
-echo "--> Downloaded: ${FILENAME}"
+    ASSET_UBU_NUM="$(cut -f1 <<<"${BEST_LINE}")"
+    FILENAME="$(cut -f2 <<<"${BEST_LINE}")"
+    DOWNLOAD_URL="$(cut -f3 <<<"${BEST_LINE}")"
 
-# Verify it's a valid .deb file
-if ! dpkg-deb -I "${FILENAME}" >/dev/null 2>&1; then
-    echo "Downloaded file is not a valid .deb package" >&2
-    exit 1
-fi
+    echo "--> Selected Ubuntu asset: ${ASSET_UBU_NUM} (<= ${UBUNTU_VERSION})"
+    echo "--> Downloading: ${FILENAME}"
+    echo "--> URL: ${DOWNLOAD_URL}"
 
-# Install the package (apt resolves dependencies; dpkg alone does not)
-echo "--> Installing the package..."
-sudo apt install -y "./${FILENAME}"
+    # Download the package
+    curl -fL -o "${FILENAME}" "${DOWNLOAD_URL}"
+    echo "--> Downloaded: ${FILENAME}"
+
+    # Verify it's a valid .deb file
+    if ! dpkg-deb -I "${FILENAME}" >/dev/null 2>&1; then
+        echo "Downloaded file is not a valid .deb package" >&2
+        exit 1
+    fi
+
+    # Install the package (apt resolves dependencies; dpkg alone does not)
+    echo "--> Installing the package..."
+    sudo apt install -y "./${FILENAME}"
+
+    # Verify installation
+    type amdflang && break || echo "amdflang not found after installation, which probably failed." >&2
+
+    RETRY_TIMES=$((RETRY_TIMES + 1))
+
+    if [ $RETRY_TIMES -ge $RETRY_MAX ]; then
+        echo "Error: Installation failed after $RETRY_TIMES attempts." >&2
+        exit 1
+    else
+        echo "Retrying in $RETRY_DELAY seconds ... (Attempt: $RETRY_TIMES)"
+        sleep $RETRY_DELAY
+    fi
+
+done
 
 # Final messages
 echo "--> AOMP installation completed."
