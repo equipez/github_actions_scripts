@@ -5,10 +5,16 @@
 # N.B.: The most technical part is to download the correct .deb package from GitHub releases.
 # After that, installation is done via a simple invocation of apt.
 
+set -uo pipefail
+
 # Default directory where AOMP is installed. Modify if needed.
 AOMP_DIR="/usr/lib/aomp"
-
-set -uo pipefail
+echo -e "\n---------------------------------------------------------------------------------------------------"
+echo -e "N.B.: We suppose that the default installation directory for AOMP is\n\n\t${AOMP_DIR}\n"
+echo -e "After installation, please verify that AOMP is installed there by checking for the amdflang binary:\n"
+echo -e "\tls ${AOMP_DIR}/bin/amdflang\n"
+echo -e "If it is not found there, please modify the AOMP_DIR variable in the script and re-run it."
+echo -e "---------------------------------------------------------------------------------------------------\n"
 
 # Allow update to fail (|| true) but proceed to install
 sudo apt update || true
@@ -110,7 +116,7 @@ until false; do
         ' <<<"${GITHUB_RESPONSE}"
         )"
     if [[ "${RELEASE_JSON}" == "null" ]]; then
-        echo "Error: No suitable AOMP release found (matching asset criteria) in GitHub response." >&2
+        echo "Warning: No suitable AOMP release found (matching asset criteria) in GitHub response." >&2
         echo -e "\nThe response is as follows:\n\n$GITHUB_RESPONSE\n"
     fi
 
@@ -141,10 +147,9 @@ until false; do
         )"
 
     if [[ -z "${BEST_LINE}" ]]; then
-        echo "Error: No Ubuntu amd64/x86_64 .deb asset found with Ubuntu version <= ${UBUNTU_VERSION}." >&2
+        echo "Warning: No Ubuntu amd64/x86_64 .deb asset found with Ubuntu version <= ${UBUNTU_VERSION}." >&2
         echo "Available assets in this release were:" >&2
         jq -r '.assets[]?.name' <<<"${RELEASE_JSON}" >&2
-        exit 1
     fi
 
     ASSET_UBU_NUM="$(cut -f1 <<<"${BEST_LINE}")"
@@ -161,8 +166,7 @@ until false; do
 
     # Verify it's a valid .deb file
     if ! dpkg-deb -I "${FILENAME}" >/dev/null 2>&1; then
-        echo "Downloaded file is not a valid .deb package" >&2
-        exit 1
+        echo "Warning: Downloaded file is not a valid .deb package" >&2
     fi
 
     # Install the package (apt resolves dependencies; dpkg alone does not)
