@@ -17,13 +17,35 @@ chmod +x "$HOME/bin/curl"
 export PATH="$HOME/bin:$PATH"
 which curl
 
+# Make a temp directory and move into it
+TEMP_DIR="$(mktemp -d)"
+cleanup() {
+    # Only remove if it still exists
+    [[ -n "${TEMP_DIR:-}" && -d "${TEMP_DIR}" ]] && rm -rf -- "${TEMP_DIR}"
+    TEMP_DIR=""  # Prevent double cleanup
+}
+
+trap cleanup EXIT
+
+echo "Created temporary directory: ${TEMP_DIR}"
+cd "${TEMP_DIR}"
+echo "Changed to ${TEMP_DIR}"
+
 # Install Arm Fortran Compiler
 # See https://developer.arm.com/Tools%20and%20Software/Arm%20Compiler%20for%20Linux#Downloads
 # It fails very often due to network issues, so we retry until it works.
-until ( printf '\n\n\nyes\n' ) | bash <(curl -fsSL https://developer.arm.com/-/cdn-downloads/permalink/Arm-Compiler-for-Linux/Package/install.sh) ; do
-    echo "Retrying Arm Fortran Compiler installation in 10 seconds ..."
-    sleep 10
+# We retry for at most 10 times with a 5 second delay between attempts.
+retry_times=0
+until [ $retry_times -ge 10 ]; do
+    ( printf '\n\n\nyes\n' ) | bash <(curl -fsSL https://developer.arm.com/-/cdn-downloads/permalink/Arm-Compiler-for-Linux/Package/install.sh) && break
+    retry_times=$((retry_times + 1))
+    echo "Retrying Arm Fortran Compiler installation in 10 seconds ... (Attempt: $retry_times)"
+    sleep 5
 done
+if [ $retry_times -ge 10 ]; then
+    echo "Error: Failed to install Arm Fortran Compiler after $retry_times attempts." >&2
+    exit 1
+fi
 
 # Initialize module command
 if [ -f /usr/share/modules/init/bash ]; then
@@ -52,3 +74,5 @@ armflang --version
 
 # Export relevant environment variables for GitHub Actions
 env | grep -i 'arm\|flang\|acfl' >> "$GITHUB_ENV"
+
+# Cleanup is handled by trap on EXIT
