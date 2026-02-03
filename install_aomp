@@ -76,8 +76,8 @@ fi
 # It fails very often due to network issues or GitHub API limits, so we retry until it works.
 # We retry for at most $RETRY_MAX times with a delay of $RETRY_DELAY seconds between attempts.
 RETRY_TIMES=0
-RETRY_MAX=10
-RETRY_DELAY=120  # seconds; longer delay to avoid GitHub rate limits
+RETRY_MAX=20
+RETRY_DELAY=300  # seconds; longer delay to avoid GitHub rate limits
 
 until false; do
 
