@@ -21,20 +21,19 @@ if [[ "$GITHUB_ACTIONS" != "true" || "$RUNNER_ENVIRONMENT" != "github-hosted" ]]
         exit 0
     fi
 else
-    if [[ "$RUNNER_OS" == "Linux" ]] ; then
-        sudo apt update && sudo apt install libncurses* # libncurses* needed for libtinfo.so
-    elif [[ "$RUNNER_OS" == "macOS" ]] ; then
-        brew install ncurses
+    if [[ $(uname -s) == 'Darwin' ]] ; then  # macOS
+        brew update || true
+        brew install ncurses git
+    else  # Assume Linux
+        sudo apt update || true
+        sudo apt install -y libncurses* git  # libncurses* needed for libtinfo.so
     fi
 fi
 
-PI_MODEL_FILE="/sys/firmware/devicetree/base/model"
-if [[ -f "$PI_MODEL_FILE" ]]  && grep -qi 'Raspberry Pi' < "$PI_MODEL_FILE" ; then  # Raspberry Pi
-    ARCH=aarch64
-elif [[ $(uname -s) == 'Darwin' ]] ; then  # macOS
-    ARCH=macos_86
-else  # Linux
-    ARCH=x86_64
+if [[ $(uname -s) == 'Darwin' ]] ; then  # macOS
+    ARCH=macos_arm  # LLVM does not provide macos_x86 flang binaries as of February 2026
+else  # Assume Linux
+    ARCH=$(uname -m)
 fi
 
 # Clone the flang repository to the temporary directory

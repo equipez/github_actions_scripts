@@ -29,6 +29,7 @@ if [[ "$RUNNER_OS" == "Linux" ]] ; then
     sudo apt install -y x11-xkb-utils libgl1
     dpkg -l x11-xkb-utils libgl1
 elif [[ "$RUNNER_OS" == "macOS" ]] ; then
+    brew update || true
     brew install coreutils make cmake ninja
     make --version
     cmake --version
