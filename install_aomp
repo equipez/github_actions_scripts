@@ -166,7 +166,7 @@ until false; do
 
     # Verify it's a valid .deb file
     if ! dpkg-deb -I "${FILENAME}" >/dev/null 2>&1; then
-        echo "Warning: Downloaded file is not a valid .deb package" >&2
+        echo "Warning: Downloaded file is not a valid .deb package." >&2
     fi
 
     # Install the package (apt resolves dependencies; dpkg alone does not)
