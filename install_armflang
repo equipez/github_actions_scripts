@@ -5,7 +5,7 @@
 set -euo pipefail
 
 # Make module command available
-sudo apt update && sudo apt upgrade -y
+sudo apt update
 sudo apt install -y environment-modules
 
 # Install Arm Fortran Compiler
