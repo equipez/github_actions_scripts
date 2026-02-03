@@ -6,7 +6,15 @@ set -euo pipefail
 
 # Make module command available
 sudo apt update
-sudo apt install -y environment-modules
+sudo apt install -y environment-modules curl
+
+# Create a custom curl wrapper to enforce HTTP/1.1 and IPv4
+mkdir -p "$HOME/bin" && cat >"$HOME/bin/curl" <<'EOF'
+#!/usr/bin/env bash
+exec /usr/bin/curl --http1.1 -4 -L -C - --retry 5 --retry-connrefused --retry-delay 5 --no-keepalive --limit-rate 50M "$@"
+EOF
+chmod +x "$HOME/bin/curl"
+export PATH="$HOME/bin:$PATH"
 
 # Install Arm Fortran Compiler
 # See https://developer.arm.com/Tools%20and%20Software/Arm%20Compiler%20for%20Linux#Downloads
