@@ -8,7 +8,7 @@ set -euo pipefail
 sudo apt update
 sudo apt install -y environment-modules curl
 
-# Create a custom curl wrapper to enforce HTTP/1.1 and IPv4
+# Create a custom curl wrapper to enforce HTTP/1.1 and IPv4, with retries and timeouts.
 mkdir -p "$HOME/bin" && cat >"$HOME/bin/curl" <<'EOF'
 #!/usr/bin/env bash
 exec /usr/bin/curl --http1.1 -4 -L -C - --retry 5 --retry-connrefused --retry-delay 5 --no-keepalive --limit-rate 50M --connect-timeout 30 --max-time 1800 "$@"
@@ -19,8 +19,11 @@ which curl
 
 # Install Arm Fortran Compiler
 # See https://developer.arm.com/Tools%20and%20Software/Arm%20Compiler%20for%20Linux#Downloads
-( printf '\n\n\nyes\n' ) | bash <(curl -fsSL https://developer.arm.com/-/cdn-downloads/permalink/Arm-Compiler-for-Linux/Package/install.sh) \
-    || { echo "Warning: Arm Fortran Compiler installation failed!" >&2; exit 1; }
+# It fails very often due to network issues, so we retry until it works.
+until ( printf '\n\n\nyes\n' ) | bash <(curl -fsSL https://developer.arm.com/-/cdn-downloads/permalink/Arm-Compiler-for-Linux/Package/install.sh) ; do
+    echo "Retrying Arm Fortran Compiler installation in 10 seconds ..."
+    sleep 10
+done
 
 # Initialize module command
 if [ -f /usr/share/modules/init/bash ]; then

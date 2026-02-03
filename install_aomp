@@ -11,6 +11,15 @@ set -euo pipefail
 sudo apt update || true
 sudo apt install -y curl jq libelf-dev libzstd-dev  # jq needed for GitHub API parsing
 
+# Create a custom curl wrapper to enforce HTTP/1.1 and IPv4, with retries and timeouts.
+mkdir -p "$HOME/bin" && cat >"$HOME/bin/curl" <<'EOF'
+#!/usr/bin/env bash
+exec /usr/bin/curl --http1.1 -4 -L -C - --retry 5 --retry-connrefused --retry-delay 5 --no-keepalive --limit-rate 50M --connect-timeout 30 --max-time 1800 "$@"
+EOF
+chmod +x "$HOME/bin/curl"
+export PATH="$HOME/bin:$PATH"
+which curl
+
 # Make a temp directory and move into it
 TEMP_DIR="$(mktemp -d)"
 cleanup() {
