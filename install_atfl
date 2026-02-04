@@ -5,8 +5,8 @@
 set -euo pipefail
 
 # Add Arm repository and install arm-toolchain-for-linux
-VERSION_YEAR=$(lsb_release -rs | cut -d. -f1)
-VERSION_CODE=$(lsb_release -rc)
+VERSION_YEAR=$(lsb_release -rs | cut -d. -f1)  # e.g., "24" for Ubuntu 24.04
+VERSION_CODE=$(lsb_release -cs)  # e.g., "noble" for Ubuntu 24.04
 curl "https://developer.arm.com/packages/arm-toolchains:ubuntu-${VERSION_YEAR}/${VERSION_CODE}/Release.key" \
     | sudo gpg --dearmor -o /usr/share/keyrings/obs-oss-arm-com.gpg
 echo "deb [signed-by=/usr/share/keyrings/obs-oss-arm-com.gpg] https://developer.arm.com/packages/arm-toolchains:ubuntu-${VERSION_YEAR}/${VERSION_CODE}/ ./" \
