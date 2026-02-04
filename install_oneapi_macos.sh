@@ -24,7 +24,7 @@ hdiutil attach webimage.dmg
 sudo /Volumes/"$(basename "$URL" .dmg)"/bootstrapper.app/Contents/MacOS/bootstrapper -s --action install --components="$COMPONENTS" --eula=accept --log-dir=.
 installer_exit_code=$?
 
-# Run the script that sets the necessary environment variables and then damp them to $GITHUB_ENV
+# Run the script that sets the necessary environment variables and then dump them to $GITHUB_ENV
 # so that they are available in subsequent steps.
 if [[ -f /opt/intel/oneapi/setvars.sh ]] ; then
     source /opt/intel/oneapi/setvars.sh

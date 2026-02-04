@@ -33,7 +33,7 @@ start /b /wait webimage.exe -s -x -f webimage_extracted --log extract.log
 webimage_extracted\bootstrapper.exe -s --action install --components=%COMPONENTS% --eula=accept -p=NEED_VS2017_INTEGRATION=0 -p=NEED_VS2019_INTEGRATION=0 -p=NEED_VS2022_INTEGRATION=0 --log-dir=.
 set installer_exit_code=%ERRORLEVEL%
 
-:: Run the script that sets the necessary environment variables and then damp them to $GITHUB_ENV
+:: Run the script that sets the necessary environment variables and then dump them to $GITHUB_ENV
 :: so that they are available in subsequent steps.
 :: N.B.: `grep 'intel\|oneapi'` does not work on Windows.
 call "C:\Program Files (x86)\Intel\oneAPI\setvars.bat"

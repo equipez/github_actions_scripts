@@ -20,7 +20,7 @@ sudo apt install -y intel-oneapi-common-vars intel-oneapi-compiler-fortran
 installer_exit_code=$?
 sudo apt clean  # Remove the .deb
 
-# Run the script that sets the necessary environment variables and then damp them to $GITHUB_ENV
+# Run the script that sets the necessary environment variables and then dump them to $GITHUB_ENV
 # so that they are available in subsequent steps.
 if [[ -f /opt/intel/oneapi/setvars.sh ]] ; then
     source /opt/intel/oneapi/setvars.sh

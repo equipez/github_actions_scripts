@@ -16,7 +16,7 @@ AOCC_7Z="aocc_flang.deb.7z.001"
 sudo apt install -y "$TMP_DIR"/"$REPO_NAME"/aocc_flang.deb
 cd ~ && rm -rf "$TMP_DIR" || exit 42
 
-# Run the script that sets the necessary environment variables and then damp them to $GITHUB_ENV
+# Run the script that sets the necessary environment variables and then dump them to $GITHUB_ENV
 # so that they are available in subsequent steps.
 if [[ -d /opt/AMD ]] ; then
     AOCCDIR="$(find /opt/AMD -maxdepth 1 -name "aocc-compiler*" -type d -print | sort | tail -n 1)"
