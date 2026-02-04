@@ -4,6 +4,10 @@
 
 set -euo pipefail
 
+# Update package lists and install prerequisites
+sudo apt update || true  # Ignore errors from apt update
+sudo apt install -y curl gpg environment-modules
+
 # Add Arm repository and install arm-toolchain-for-linux
 VERSION_YEAR=$(lsb_release -rs | cut -d. -f1)  # e.g., "24" for Ubuntu 24.04
 VERSION_CODE=$(lsb_release -cs)  # e.g., "noble" for Ubuntu 24.04
@@ -13,8 +17,8 @@ echo "deb [signed-by=/usr/share/keyrings/obs-oss-arm-com.gpg] https://developer.
     | sudo tee /etc/apt/sources.list.d/obs-oss-arm-com.list
 
 # Update package lists and install the toolchain
-sudo apt update || true
-sudo apt install -y arm-toolchain-for-linux environment-modules
+sudo apt update
+sudo apt install -y arm-toolchain-for-linux
 
 # Initialize module command
 if [ -f /etc/profile.d/modules.sh ]; then
@@ -36,8 +40,8 @@ module load atfl
 
 # Verify installation
 for tool in armflang armclang armclang++; do
-    type $tool > /dev/null 2>&1 || echo "$tool not found after the installation, which probably failed." >&2
-    exit 1
+    type $tool > /dev/null 2>&1 || \
+        { echo "$tool not found after the installation, which probably failed." >&2 ; exit 1; }
 done
 
 # Final messages
