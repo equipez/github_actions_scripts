@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+# Install Arm Toolchain for Linux (atfl)
+# Usage: ./install_atfl
+
+set -euo pipefail
+
+# Add Arm repository and install arm-toolchain-for-linux
+VERSION_YEAR=$(lsb_release -rs | cut -d. -f1)
+VERSION_CODE=$(lsb_release -rc)
+curl "https://developer.arm.com/packages/arm-toolchains:ubuntu-${VERSION_YEAR}/${VERSION_CODE}/Release.key" \
+    | sudo gpg --dearmor -o /usr/share/keyrings/obs-oss-arm-com.gpg
+echo "deb [signed-by=/usr/share/keyrings/obs-oss-arm-com.gpg] https://developer.arm.com/packages/arm-toolchains:ubuntu-${VERSION_YEAR}/${VERSION_CODE}/ ./" \
+    | sudo tee /etc/apt/sources.list.d/obs-oss-arm-com.list
+
+# Update package lists and install the toolchain
+sudo apt update || true
+sudo apt install -y arm-toolchain-for-linux environment-modules
+
+# Initialize module command
+if [ -f /etc/profile.d/modules.sh ]; then
+    source /etc/profile.d/modules.sh
+elif [ -f /usr/share/modules/init/bash ]; then
+    source /usr/share/modules/init/bash
+else
+    echo "Warning: Module initialization script not found." >&2
+fi
+
+# Add Arm modulefiles
+module use /opt/arm/modulefiles
+
+# List available modules
+module avail
+
+# Load the module for Arm Toolchain for Linux
+module load atfl
+
+# Verify installation
+for tool in armflang armclang armclang++; do
+    type $tool > /dev/null 2>&1 || echo "$tool not found after the installation, which probably failed." >&2
+    exit 1
+done
+
+# Final messages
+echo "Arm Toolchain installation completed."
+for tool in armflang armclang armclang++; do
+    echo -e "\nThe $tool version is:\n"
+    $tool --version
+    echo -e "\nThe path to $tool is:\n"
+    command -v $tool
+done
+
+# Export relevant environment variables for GitHub Actions
+env | grep -i 'arm\|atfl\|flang\|clang' >> "$GITHUB_ENV"
