@@ -12,7 +12,7 @@ if [[ "$GITHUB_ACTIONS" != "true" || "$RUNNER_ENVIRONMENT" != "github-hosted" ]]
 fi
 
 if [[ "$RUNNER_OS" == "Linux" ]] ; then
-    sudo apt update
+    sudo apt update || true
     sudo apt install -y gdb make cmake ninja-build execstack
     gdb --version
     make --version

@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Usage: bash install_aocc
 #
-sudo apt update && sudo apt install 7zip-standalone libncurses* -y  # libncurses* needed for libtinfo.so
+sudo apt update || true
+sudo apt install 7zip-standalone libncurses* -y  # libncurses* needed for libtinfo.so
 
 REPO_NAME=aocc_flang
 TMP_DIR="$(mktemp -d)"

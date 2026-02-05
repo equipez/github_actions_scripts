@@ -5,7 +5,8 @@
 MAX_RUNTIME_SECONDS=0  # We do not check the running time of the tests
 
 # Install jq
-sudo apt update && sudo apt install -y jq
+sudo apt update || true
+sudo apt install -y jq
 
 # Fetch the jobs for the current workflow run using the GitHub API
 # $1 = ${{ secrets.GITHUB_TOKEN }}

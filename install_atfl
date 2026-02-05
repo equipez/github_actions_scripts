@@ -17,8 +17,7 @@ echo "deb [signed-by=/usr/share/keyrings/obs-oss-arm-com.gpg] https://developer.
     | sudo tee /etc/apt/sources.list.d/obs-oss-arm-com.list
 
 # Update package lists and install the toolchain
-sudo apt update
-sudo apt install -y arm-toolchain-for-linux
+sudo apt update && sudo apt install -y arm-toolchain-for-linux
 
 # Initialize module command
 if [ -f /etc/profile.d/modules.sh ]; then

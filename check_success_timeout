@@ -5,7 +5,8 @@ MAX_RUNTIME_SECONDS=$((330*60))
 #MAX_RUNTIME_SECONDS=$((50))
 
 # Install jq
-sudo apt update && sudo apt install -y jq
+sudo apt update || true
+sudo apt install -y jq
 
 # Fetch the jobs for the current workflow run using the GitHub API
 # $1 = ${{ secrets.GITHUB_TOKEN }}
