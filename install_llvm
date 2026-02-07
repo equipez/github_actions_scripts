@@ -49,17 +49,19 @@ else  # Assume Linux
 
     # Set up a symbolic link named flang pointing to flang-${VERSION_NUMBER}
     for TOOL in flang clang lld; do
-        TOOL_DIR="$(dirname "$(which ${TOOL}-${VERSION_NUMBER})")"
+        TOOL_DIR="$(dirname "$(command -v ${TOOL}-${VERSION_NUMBER})")"
         cd "$TOOL_DIR" || exit 1
-        if [[ -f ${TOOL} ]]; then
+        ls -l ${TOOL}-${VERSION_NUMBER} || true
+        ls -l ${TOOL} || true
+        if [[ -f ${TOOL} || -L ${TOOL} ]]; then
             echo "A ${TOOL} executable already exists in ${TOOL_DIR}, the directory of ${TOOL}-${VERSION_NUMBER}."
             echo "Its version is:"
-            ${TOOL} --version
+            ${TOOL} --version || true
             echo "Backing up the existing ${TOOL} executable to ${TOOL}.bak"
             sudo mv ${TOOL} ${TOOL}.bak
         fi
         echo "Creating a symbolic link named ${TOOL} pointing to ${TOOL}-${VERSION_NUMBER} in $(pwd)"
-        sudo ln -s ${TOOL}-${VERSION_NUMBER} ${TOOL}
+        sudo ln -sf ${TOOL}-${VERSION_NUMBER} ${TOOL}
     done
 
 fi
