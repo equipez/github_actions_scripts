@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+# Usage: bash install_llvm
+# N.B.: VERSION_NUMBER is used only on Linux; on macOS, Homebrew will always install the latest
+# version of LLVM as of 2026.
+# The script will determine the version number based on the current date and the LLVM release
+# schedule, which is updated every six months as of 2026, in March and September. The version number
+# in September 2025 is 21.
+
+
+if [[ $(uname -s) == 'Darwin' ]] ; then  # macOS
+    brew update || true
+    # clang is included in llvm, but flang and lld are separate packages.
+    brew install llvm flang lld  # The latest version will be installed, which is 21 in September 2025.
+else  # Assume Linux
+
+    # According to "LLVM Release Schedule" at https://llvm.org, we assume that the version is
+    # updated every six months, in March and September. The version number in September 2025 is 21.
+    CURRENT_YEAR=$(date +%Y)
+    CURRENT_MONTH=$(date +%m)
+    echo "Current year: ${CURRENT_YEAR}, current month: ${CURRENT_MONTH}"
+    if [[ ${CURRENT_MONTH} -ge 9 ]]; then
+        VERSION_NUMBER=$((21 + (CURRENT_YEAR - 2025) * 2))
+    elif [[ ${CURRENT_MONTH} -ge 3 ]]; then
+        VERSION_NUMBER=$((21 + (CURRENT_YEAR - 2025) * 2 - 1))
+    else
+        VERSION_NUMBER=$((21 + (CURRENT_YEAR - 2026) * 2 ))
+    fi
+    echo "Using the version number ${VERSION_NUMBER} based on the current date."
+
+    # Add the LLVM repository
+    # See https://apt.llvm.org/
+    UBUNTU_CODENAME=$(lsb_release -sc)
+    echo "deb http://apt.llvm.org/${UBUNTU_CODENAME}/ llvm-toolchain-${UBUNTU_CODENAME}-${VERSION_NUMBER} main" \
+        | sudo tee /etc/apt/sources.list.d/llvm-toolchain-${VERSION_NUMBER}.list
+
+    # Add the GPG key for the LLVM repository
+    wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key \
+        | sudo tee /etc/apt/trusted.gpg.d/apt.llvm.org.asc
+
+    # Install the packages (clang is needed even if we use only flang).
+    sudo apt update
+    sudo apt-get install -y llvm-${VERSION_NUMBER} flang-${VERSION_NUMBER} clang-${VERSION_NUMBER}  lld-${VERSION_NUMBER}
+
+    # Verify the installation
+    for TOOL in flang clang lld; do
+        type ${TOOL}-${VERSION_NUMBER} > /dev/null 2>&1 || \
+            { echo "${TOOL}-${VERSION_NUMBER} not found after the installation, which probably failed." >&2 ; exit 1; }
+    done
+
+    # Set up a symbolic link named flang pointing to flang-${VERSION_NUMBER}
+    for TOOL in flang clang lld; do
+        TOOL_DIR="$(dirname "$(which ${TOOL}-${VERSION_NUMBER})")"
+        cd "$TOOL_DIR" || exit 1
+        if [[ -f ${TOOL} ]]; then
+            echo "A ${TOOL} executable already exists in ${TOOL_DIR}, the directory of ${TOOL}-${VERSION_NUMBER}."
+            echo "Its version is:"
+            ${TOOL} --version
+            echo "Backing up the existing ${TOOL} executable to ${TOOL}.bak"
+            sudo mv ${TOOL} ${TOOL}.bak
+        fi
+        echo "Creating a symbolic link named ${TOOL} pointing to ${TOOL}-${VERSION_NUMBER} in $(pwd)"
+        sudo ln -s ${TOOL}-${VERSION_NUMBER} ${TOOL}
+    done
+
+fi
+
+# Verify installation
+for TOOL in flang clang lld; do
+    type $TOOL > /dev/null 2>&1 || \
+        { echo "$TOOL not found after the installation, which probably failed." >&2 ; exit 1; }
+done
+
+# Final messages
+echo "LLVM installation completed."
+for TOOL in flang clang lld; do
+    echo -e "\nThe $TOOL version is:\n"
+    $TOOL --version
+    echo -e "\nThe path to $TOOL is:\n"
+    command -v $TOOL
+done

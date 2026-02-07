@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 # Usage: bash install_flang
+#
+echo "Deprecated. See install_llvm instead."
+exit 1
 
 REPO_NAME="flang"
 GIT_ADDR="https://github.com/zaikunzhang/$REPO_NAME.git"
