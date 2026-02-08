@@ -9,8 +9,9 @@ sudo apt update || true  # Ignore errors from apt update
 sudo apt install -y curl gpg environment-modules
 
 # Add Arm repository and install arm-toolchain-for-linux
-VERSION_YEAR=$(lsb_release -rs | cut -d. -f1)  # e.g., "24" for Ubuntu 24.04
-VERSION_CODE=$(lsb_release -cs)  # e.g., "noble" for Ubuntu 24.04
+VERSION_YEAR=$( (lsb_release -rs 2>/dev/null || (. /etc/os-release && echo "$VERSION_ID")) | cut -d. -f1 )  # e.g., "24" for Ubuntu 24.04
+VERSION_CODE=$( (lsb_release -sc 2>/dev/null || (. /etc/os-release && echo "$VERSION_CODENAME")) )  # e.g., "noble" for Ubuntu 24.04
+echo "Detected Ubuntu version: ${VERSION_YEAR} (${VERSION_CODE})"
 curl "https://developer.arm.com/packages/arm-toolchains:ubuntu-${VERSION_YEAR}/${VERSION_CODE}/Release.key" \
     | sudo gpg --dearmor -o /usr/share/keyrings/obs-oss-arm-com.gpg
 echo "deb [signed-by=/usr/share/keyrings/obs-oss-arm-com.gpg] https://developer.arm.com/packages/arm-toolchains:ubuntu-${VERSION_YEAR}/${VERSION_CODE}/ ./" \

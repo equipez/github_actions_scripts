@@ -12,7 +12,7 @@ if [[ $(uname -s) == 'Darwin' ]] ; then  # macOS
     brew update || true
     # clang is included in llvm, but flang and lld are separate packages.
     brew install llvm flang lld  # The latest version will be installed, which is 21 in September 2025.
-else  # Assume Linux
+else  # Assume Ubuntu
 
     # Install prerequisites.
     sudo apt update || true && sudo apt install -y curl gnupg
@@ -34,7 +34,7 @@ else  # Assume Linux
 
     # Add the LLVM repository and the GPG key.
     # See https://apt.llvm.org/
-    UBUNTU_CODENAME=$(lsb_release -sc 2>/dev/null || grep VERSION_CODENAME /etc/os-release | cut -d= -f2)
+    UBUNTU_CODENAME=$( (lsb_release -sc 2>/dev/null || (. /etc/os-release && echo "$VERSION_CODENAME")) )  # e.g., "noble" for Ubuntu 24.04
     curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key \
         | gpg --dearmor --yes \
         | sudo tee /usr/share/keyrings/apt.llvm.org.gpg > /dev/null
