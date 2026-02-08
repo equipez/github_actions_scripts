@@ -21,11 +21,18 @@ cd ~ && rm -rf "$TMP_DIR" || exit 42
 # so that they are available in subsequent steps.
 if [[ -d /opt/AMD ]] ; then
     AOCCDIR="$(find /opt/AMD -maxdepth 1 -name "aocc-compiler*" -type d -print | sort | tail -n 1)"
+    AFLANG=$(find -L "$AOCCDIR" -type f -name flang -exec test -x {} \; -print 2>/dev/null | sort | tail -n 1)
+    # Make a link to flang named aflang in a directory that is in the PATH, so that it can be found by
+    # subsequent steps. aflang is used only for checking the installation here and before the tests.
+    # In the tests, the AOCC flang will be called with a full path identified by `find` to avoid any
+    # confusion with other flang versions.
+    if [[ -n "$AFLANG" ]] ; then sudo ln -sf "$AFLANG" /usr/local/bin/aflang ; fi
+
+    # If we do the following, then the default flang will be resolved to the AOCC flang, which is
+    # not what we want.
     #AOCC_ENVSH="$(find "$AOCCDIR" -name "*setenv*.sh" -type f)"
     ##shellcheck disable=SC1090
     #source "$AOCC_ENVSH"
-    AFLANG=$(find -L "$AOCCDIR" -type f -name flang -exec test -x {} \; -print 2>/dev/null | sort | tail -n 1)
-    if [[ -n "$AFLANG" ]] ; then sudo ln -sf "$AFLANG" /usr/local/bin/aflang ; fi
 else
     exit 1
 fi
