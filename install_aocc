@@ -24,9 +24,8 @@ if [[ -d /opt/AMD ]] ; then
     AOCC_ENVSH="$(find "$AOCCDIR" -name "*setenv*.sh" -type f)"
     #shellcheck disable=SC1090
     source "$AOCC_ENVSH"
-    AFLANG="$(find "$AOCCDIR" -type f -executable -name "clang-*" | grep -E "clang-[0-9]{2}" | head -1)"
+    AFLANG=$(find -L "$AOCCDIR" -type f -name flang -exec test -x {} \; -print 2>/dev/null | sort | tail -n 1)
     if [[ -n "$AFLANG" ]] ; then sudo ln -s "$AFLANG" "$(dirname "$AFLANG")"/aflang ; fi
-    export PATH=$(dirname "$AFLANG"):$PATH
 else
     exit 1
 fi
