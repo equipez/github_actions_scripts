@@ -21,9 +21,9 @@ cd ~ && rm -rf "$TMP_DIR" || exit 42
 # so that they are available in subsequent steps.
 if [[ -d /opt/AMD ]] ; then
     AOCCDIR="$(find /opt/AMD -maxdepth 1 -name "aocc-compiler*" -type d -print | sort | tail -n 1)"
-    AOCC_ENVSH="$(find "$AOCCDIR" -name "*setenv*.sh" -type f)"
-    #shellcheck disable=SC1090
-    source "$AOCC_ENVSH"
+    #AOCC_ENVSH="$(find "$AOCCDIR" -name "*setenv*.sh" -type f)"
+    ##shellcheck disable=SC1090
+    #source "$AOCC_ENVSH"
     AFLANG=$(find -L "$AOCCDIR" -type f -name flang -exec test -x {} \; -print 2>/dev/null | sort | tail -n 1)
     if [[ -n "$AFLANG" ]] ; then sudo ln -s "$AFLANG" "$(dirname "$AFLANG")"/aflang ; fi
 else
