@@ -1,11 +1,25 @@
 #!/usr/bin/env bash
 # Script to install the latest AOMP release for Ubuntu (amd64/x86_64)
-# Usage: bash install_aomp
+# Usage: bash install_aomp [RETRY_MAX] [RETRY_DELAY_SECONDS]
 #
 # N.B.: The most technical part is to download the correct .deb package from GitHub releases.
 # After that, installation is done via a simple invocation of apt.
 
 set -uo pipefail
+
+# The installation fails very often due to network issues or GitHub API limits, so we retry until
+# it works. We retry for at most $RETRY_MAX times with a delay of $RETRY_DELAY_SECONDS seconds
+# between attempts.
+if [[ "$#" -ge 1 ]]; then
+    RETRY_MAX="$1"
+else
+    RETRY_MAX=5
+fi
+if [[ "$#" -ge 2 ]]; then
+    RETRY_DELAY_SECONDS="$2"
+else
+    RETRY_DELAY_SECONDS=120
+fi
 
 # Default directory where AOMP is installed. Modify if needed.
 AOMP_DIR="/usr/lib/aomp"
@@ -74,10 +88,8 @@ fi
 # Install AOMP
 # See https://github.com/ROCm/aomp/releases
 # It fails very often due to network issues or GitHub API limits, so we retry until it works.
-# We retry for at most $RETRY_MAX times with a delay of $RETRY_DELAY seconds between attempts.
+# We retry for at most $RETRY_MAX times with a delay of $RETRY_DELAY_SECONDS seconds between attempts.
 RETRY_TIMES=0
-RETRY_MAX=20
-RETRY_DELAY=300  # seconds; longer delay to avoid GitHub rate limits
 
 until false; do
 
@@ -179,12 +191,12 @@ until false; do
 
     RETRY_TIMES=$((RETRY_TIMES + 1))
 
-    if [ $RETRY_TIMES -ge $RETRY_MAX ]; then
+    if [ $RETRY_TIMES -ge "$RETRY_MAX" ]; then
         echo "Error: Installation failed after $RETRY_TIMES attempts." >&2
         exit 1
     else
-        echo "Retrying in $RETRY_DELAY seconds ... (Attempt: $RETRY_TIMES)"
-        sleep $RETRY_DELAY
+        echo "Retrying in $RETRY_DELAY_SECONDS seconds ... (Attempt: $RETRY_TIMES)"
+        sleep "$RETRY_DELAY_SECONDS"
     fi
 
 done
