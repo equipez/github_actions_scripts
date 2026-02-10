@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Install Arm Toolchain for Linux (atfl)
+# Install Arm Toolchain for Linux (ATfL)
 # Usage: ./install_atfl
 
 set -euo pipefail
