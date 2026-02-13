@@ -20,9 +20,10 @@ if [[ "$OSTYPE" == darwin* ]] ; then
     brew install llvm flang lld  # The latest version will be installed, which is 21 in September 2025.
 elif [[ "$OSTYPE" == cygwin* || "$OSTYPE" == win* || "$OSTYPE" == msys* ]]; then
     echo "We are on Windows."
-    choco upgrade chocolatey -y || true
-    choco install llvm -y
-    choco upgrade llvm -y  # Update to the latest version
+    choco upgrade chocolatey -y --no-progress || true
+    # flang, clang, and lld are supposed to be included in llvm.
+    choco install llvm -y --no-progress
+    choco upgrade llvm -y --no-progress  # Update to the latest version
 else  # Assume Ubuntu
 
     echo "We assume that we are on Ubuntu."
