@@ -37,7 +37,8 @@ elif [[ "$RUNNER_OS" == "macOS" ]] ; then
     # gdb cannot be installed by brew on macOS 14 with Apple Silicon chips as of 20240219
     (brew install gdb &> /dev/null && gbd --version) || echo "!!! WARNING: gdb cannot be installed !!!"
 elif [[ "$RUNNER_OS" == "Windows" ]] ; then
-    choco install wget make cmake ninja --no-progress  # gdb cannot be installed by choco
+    choco upgrade chocolatey -y || true
+    choco install wget make cmake ninja -y --no-progress  # gdb cannot be installed by choco
     make --version
     cmake --version
     ninja --version
