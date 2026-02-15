@@ -32,7 +32,7 @@ fi
 if [[ "$#" -ge 2 ]]; then
     RETRY_DELAY_SECONDS="$2"
 else
-    RETRY_DELAY_SECONDS=120
+    RETRY_DELAY_SECONDS=10
 fi
 
 # Allow update to fail (|| true) but proceed to install
