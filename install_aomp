@@ -7,6 +7,15 @@
 
 set -uo pipefail
 
+# Default directory where AOMP is installed. Modify if needed.
+AOMP_DIR="/usr/lib/aomp"
+echo -e "\n---------------------------------------------------------------------------------------------------"
+echo -e "N.B.: We suppose that the default installation directory for AOMP is\n\n\t${AOMP_DIR}\n"
+echo -e "After installation, please verify that AOMP is installed there by checking for the amdflang binary:\n"
+echo -e "\tls ${AOMP_DIR}/bin/amdflang\n"
+echo -e "If it is not found there, please modify the AOMP_DIR variable in the script and re-run it."
+echo -e "---------------------------------------------------------------------------------------------------\n"
+
 # The installation fails very often due to network issues or GitHub API limits, so we retry until
 # it works. We retry for at most $RETRY_MAX times with a delay of $RETRY_DELAY_SECONDS seconds
 # between attempts.
@@ -20,15 +29,6 @@ if [[ "$#" -ge 2 ]]; then
 else
     RETRY_DELAY_SECONDS=120
 fi
-
-# Default directory where AOMP is installed. Modify if needed.
-AOMP_DIR="/usr/lib/aomp"
-echo -e "\n---------------------------------------------------------------------------------------------------"
-echo -e "N.B.: We suppose that the default installation directory for AOMP is\n\n\t${AOMP_DIR}\n"
-echo -e "After installation, please verify that AOMP is installed there by checking for the amdflang binary:\n"
-echo -e "\tls ${AOMP_DIR}/bin/amdflang\n"
-echo -e "If it is not found there, please modify the AOMP_DIR variable in the script and re-run it."
-echo -e "---------------------------------------------------------------------------------------------------\n"
 
 # Allow update to fail (|| true) but proceed to install
 sudo apt update || true
@@ -91,7 +91,7 @@ fi
 # We retry for at most $RETRY_MAX times with a delay of $RETRY_DELAY_SECONDS seconds between attempts.
 RETRY_TIMES=0
 
-until false; do
+while true; do
 
     echo "Fetching latest AOMP release information..."
 
@@ -177,17 +177,17 @@ until false; do
     echo "--> Downloaded: ${FILENAME}"
 
     # Verify it's a valid .deb file
-    if ! dpkg-deb -I "${FILENAME}" >/dev/null 2>&1; then
+    if ! dpkg-deb -I "${FILENAME}" ; then
         echo "Warning: Downloaded file is not a valid .deb package." >&2
+    else
+        # Install the package (apt resolves dependencies; dpkg alone does not)
+        echo "--> Installing the package..."
+        sudo apt install -y "./${FILENAME}"
+
+        # Verify installation
+        export PATH=$PATH:$AOMP_DIR/bin
+        type amdflang > /dev/null 2>&1 && break || echo "Warning: amdflang not working after the installation, which probably failed." >&2
     fi
-
-    # Install the package (apt resolves dependencies; dpkg alone does not)
-    echo "--> Installing the package..."
-    sudo apt install -y "./${FILENAME}"
-
-    # Verify installation
-    export PATH=$PATH:$AOMP_DIR/bin
-    type amdflang > /dev/null 2>&1 && break || echo "amdflang not working after the installation, which probably failed." >&2
 
     RETRY_TIMES=$((RETRY_TIMES + 1))
 
@@ -196,6 +196,7 @@ until false; do
         exit 1
     else
         echo "Retrying in $RETRY_DELAY_SECONDS seconds ... (Attempt: $RETRY_TIMES)"
+        rm -f -- "${FILENAME}"
         sleep "$RETRY_DELAY_SECONDS"
     fi
 
@@ -213,7 +214,9 @@ echo "Maybe also set LD_LIBRARY_PATH:"
 echo -e "\n\texport LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:$AOMP_DIR/lib\n"
 echo -e "Add these lines to your ~/.bashrc or ~/.profile for persistence.\n"
 
-# Set environment variable for subsequent steps
-echo "PATH=$PATH:$AOMP_DIR/bin" >> "$GITHUB_ENV"
+# Set environment variable for subsequent steps if running in GitHub Actions
+if [[ -n "${GITHUB_ENV:-}" ]]; then
+    echo "PATH=$PATH:$AOMP_DIR/bin" >> "$GITHUB_ENV"
+fi
 
 # Cleanup is handled by trap on EXIT

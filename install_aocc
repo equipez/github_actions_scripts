@@ -1,45 +1,126 @@
 #!/usr/bin/env bash
-# Usage: bash install_aocc
+# Script to install the AMD AOCC for Ubuntu (amd64/x86_64)
+# Usage: bash install_aocc [RETRY_MAX] [RETRY_DELAY_SECONDS]
 #
-sudo apt update || true
-sudo apt install 7zip-standalone libncurses* -y  # libncurses* needed for libtinfo.so
+# N.B.: The most technical part is to download the correct .deb package from GitHub releases.
+# After that, installation is done via a simple invocation of apt.
 
-REPO_NAME=aocc_flang
-TMP_DIR="$(mktemp -d)"
-cd "$TMP_DIR" || exit 42
-git clone https://github.com/zaikunzhang/"$REPO_NAME".git
+set -uo pipefail
 
-cd "$REPO_NAME" || exit 42
-AOCC_7Z="aocc_flang.deb.7z.001"
-7za x "$AOCC_7Z" -aoa  # -aoa: overwrite all existing files without prompt
+# Download URL for AOCC 5.1.0. See https://www.amd.com/fr/developer/aocc.html
+# Updated on 20260214
+DOWNLOAD_URL="https://download.amd.com/developer/eula/aocc/aocc-5-1/aocc-compiler-5.1.0_1_amd64.deb"
+SHA256SUM="42f9ed0713a8fe269d5a5b40b1992a5380ff59b4441e58d38eb9f27df5bfe6df"
 
-# Install the package (apt resolves dependencies; dpkg alone does not)
-sudo apt install -y "$TMP_DIR"/"$REPO_NAME"/aocc_flang.deb
-cd ~ && rm -rf "$TMP_DIR" || exit 42
+# Default directory where AOCC is installed. Modify if needed.
+AOCC_DIR="/opt/AMD"
+echo -e "\n---------------------------------------------------------------------------------------------------"
+echo -e "N.B.: We suppose that the default installation directory for AOCC is\n\n\t${AOCC_DIR}\n"
+echo -e "After installation, please verify that AOCC is installed there by checking for the flang binary:\n"
+echo -e "\tls ${AOCC_DIR}/aocc-compiler-VERSION/bin/flang\n"
+echo -e "If it is not found there, please modify the AOCC_DIR variable in the script and re-run it."
+echo -e "---------------------------------------------------------------------------------------------------\n"
 
-# Run the script that sets the necessary environment variables and then dump them to $GITHUB_ENV
-# so that they are available in subsequent steps.
-if [[ -d /opt/AMD ]] ; then
-    AOCCDIR="$(find /opt/AMD -maxdepth 1 -name "aocc-compiler*" -type d -print | sort | tail -n 1)"
-    AFLANG=$(find -L "$AOCCDIR" -type f -name flang -exec test -x {} \; -print 2>/dev/null | sort | tail -n 1)
-    # Make a link to flang named aflang in a directory that is in the PATH, so that it can be found by
-    # subsequent steps. aflang is used only for checking the installation here and before the tests.
-    # In the tests, the AOCC flang will be called with a full path identified by `find` to avoid any
-    # confusion with other flang versions.
-    if [[ -n "$AFLANG" ]] ; then sudo ln -sf "$AFLANG" /usr/local/bin/aflang ; fi
-
-    # If we do the following, then the default flang will be resolved to the AOCC flang, which is
-    # not what we want.
-    #AOCC_ENVSH="$(find "$AOCCDIR" -name "*setenv*.sh" -type f)"
-    ##shellcheck disable=SC1090
-    #source "$AOCC_ENVSH"
+# The installation may fail due to network issues, so we retry until it works. We retry for at most
+# $RETRY_MAX times with a delay of $RETRY_DELAY_SECONDS seconds between attempts.
+if [[ "$#" -ge 1 ]]; then
+    RETRY_MAX="$1"
 else
-    exit 1
+    RETRY_MAX=5
 fi
-env | grep -i 'aocc\|AMD' >> "$GITHUB_ENV"
+if [[ "$#" -ge 2 ]]; then
+    RETRY_DELAY_SECONDS="$2"
+else
+    RETRY_DELAY_SECONDS=120
+fi
 
-# Show the result of the installation.
-echo "The AOCC flang installed is:"
-aflang --version
-echo "The path to AOCC flang is:"
-command -v aflang
+# Allow update to fail (|| true) but proceed to install
+sudo apt update || true
+sudo apt install -y curl
+
+# Make a temp directory and move into it
+TMP_DIR="$(mktemp -d)"
+cleanup() {
+    # Only remove if it still exists
+    [[ -n "${TMP_DIR:-}" && -d "${TMP_DIR}" ]] && rm -rf -- "${TMP_DIR}"
+    TMP_DIR=""  # Prevent double cleanup
+}
+
+trap cleanup EXIT
+
+echo "--> Created temporary directory: ${TMP_DIR}"
+cd "${TMP_DIR}" || exit 1
+echo "--> Changed to ${TMP_DIR}"
+FILENAME="${TMP_DIR}/aocc.deb"
+
+# Create a custom curl wrapper to enforce HTTP/1.1 and IPv4, with retries and timeouts.
+# Useful in CI environments with occasional network issues.
+cat >"$TMP_DIR/curl" <<'EOF'
+#!/usr/bin/env bash
+exec /usr/bin/curl --http1.1 -4 -L -C - --retry 5 --retry-connrefused --retry-delay 5 --no-keepalive --limit-rate 50M --connect-timeout 30 --max-time 1800 "$@"
+EOF
+chmod +x "$TMP_DIR/curl"
+export PATH="$TMP_DIR:$PATH"
+type curl
+
+# Install AOCC
+# See https://www.amd.com/fr/developer/aocc.html
+# We retry for at most $RETRY_MAX times with a delay of $RETRY_DELAY_SECONDS seconds between attempts.
+RETRY_TIMES=0
+
+while true; do
+
+    # Download the package
+    curl -fL -o "${FILENAME}" "${DOWNLOAD_URL}"
+    echo "--> Downloaded: ${FILENAME}"
+
+    # Verify it's a valid .deb file
+    if ! echo "${SHA256SUM}  ${FILENAME}" | sha256sum -c  || ! dpkg-deb -I "${FILENAME}" ; then
+        echo "Warning: Downloaded file does not match the sha256sum or is not a valid .deb package." >&2
+    else
+        # Install the package (apt resolves dependencies; dpkg alone does not)
+        echo "--> Installing the package..."
+        sudo apt install -y "${FILENAME}"
+
+        # Verify installation
+        ADIR="$(find "${AOCC_DIR}" -maxdepth 1 -name "aocc-compiler*" -type d -print | sort -V | tail -n 1)"
+        if [[ -z "$ADIR" ]]; then
+            echo "Warning: AOCC directory not found after the installation, which probably failed." >&2
+            # continue to retry...
+        else
+            AFLANG=$(find -L "${ADIR}" -type f -name flang -exec test -x {} \; -print 2>/dev/null | sort | tail -n 1)
+            [[ -n "$AFLANG" && -x "$AFLANG" ]] && break || echo "Warning: AOCC flang not found or not executable after the installation, which probably failed." >&2
+        fi
+    fi
+
+    RETRY_TIMES=$((RETRY_TIMES + 1))
+
+    if [ $RETRY_TIMES -ge "$RETRY_MAX" ]; then
+        echo "Error: Installation failed after $RETRY_TIMES attempts." >&2
+        exit 1
+    else
+        echo "Retrying in $RETRY_DELAY_SECONDS seconds ... (Attempt: $RETRY_TIMES)"
+        rm -f -- "${FILENAME}"
+        sleep "$RETRY_DELAY_SECONDS"
+    fi
+
+done
+
+# Final messages
+echo "--> AOCC installation completed."
+echo -e "\nThe AOCC flang version is:\n"
+$AFLANG --version
+echo -e "\nThe path to AOCC flang is:\n"
+echo "$AFLANG"
+echo -e "\nTo use AOCC, you may need to add to your PATH:"
+echo -e "\n\texport PATH=\$PATH:$(dirname "$AFLANG")\n"
+echo "Maybe also set LD_LIBRARY_PATH:"
+echo -e "\n\texport LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:$(dirname "$(dirname "$AFLANG")")/lib\n"
+echo -e "Add these lines to your ~/.bashrc or ~/.profile for persistence.\n"
+
+# Set environment variable for subsequent steps if running in GitHub Actions
+if [[ -n "${GITHUB_ENV:-}" ]]; then
+    echo "PATH=$PATH:$AOCC_DIR/bin" >> "$GITHUB_ENV"
+fi
+
+# Cleanup is handled by trap on EXIT
