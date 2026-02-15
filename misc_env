@@ -28,10 +28,13 @@ fi
 echo "SEDI=$SEDI"
 echo "SEDI=$SEDI" >> "$GITHUB_ENV"
 
-# The following does not work. Why?
 # Make tools such as grep, make, and git available on Windows.
-#if [[ "$RUNNER_OS" = "Windows" ]] ; then
-#    PATH="$PATH"":/c/Program Files/Git/usr/bin:/c/Program Files/Git/bin:/c/ProgramData/Chocolatey/bin"
-#    echo "$PATH"
-#    echo "PATH=$PATH" >> "$GITHUB_ENV"
-#fi
+# The following may not work. Why?
+if [[ "$RUNNER_OS" = "Windows" ]] ; then
+    PATH="$PATH:/c/Program Files/Git/usr/bin:/c/Program Files/Git/bin:/c/ProgramData/Chocolatey/bin"
+    echo "$PATH"
+    echo "PATH=$PATH" >> "$GITHUB_ENV"
+    which grep && grep --version || true
+    which make && make --version || true
+    which git && git --version || true
+fi
