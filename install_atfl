@@ -53,5 +53,7 @@ for tool in armflang armclang armclang++; do
     command -v $tool
 done
 
-# Export relevant environment variables for GitHub Actions
-env | grep -i 'arm\|atfl\|flang\|clang' >> "$GITHUB_ENV"
+# Set environment variable for subsequent steps if running in GitHub Actions
+if [[ -n "${GITHUB_ENV:-}" ]]; then
+    env | grep -i 'arm\|atfl\|flang\|clang' >> "$GITHUB_ENV"
+fi
