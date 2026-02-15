@@ -28,13 +28,14 @@ fi
 echo "SEDI=$SEDI"
 echo "SEDI=$SEDI" >> "$GITHUB_ENV"
 
-# Make tools such as grep, make, and git available on Windows.
-# The following may not work. Why?
-if [[ "$RUNNER_OS" = "Windows" ]] ; then
-    #PATH="$PATH:/c/Program Files/Git/usr/bin:/c/Program Files/Git/bin:/c/ProgramData/Chocolatey/bin"
-    #echo "$PATH"
-    #echo "PATH=$PATH" >> "$GITHUB_ENV"
-    which grep && grep --version || true
-    which make && make --version || true
-    which git && git --version || true
-fi
+# Zaikun 20260215: As of 20260215, the following is not needed. In addition, on wikdows-2025, it will make
+# gfortran fail due to missing DLL!
+## Make tools such as grep, make, and git available on Windows.
+#if [[ "$RUNNER_OS" = "Windows" ]] ; then
+#    PATH="$PATH:/c/Program Files/Git/usr/bin:/c/Program Files/Git/bin:/c/ProgramData/Chocolatey/bin"
+#    echo "$PATH"
+#    echo "PATH=$PATH" >> "$GITHUB_ENV"
+#    type grep && grep --version || true
+#    type make && make --version || true
+#    type git && git --version || true
+#fi
