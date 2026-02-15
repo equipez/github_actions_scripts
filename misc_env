@@ -28,8 +28,8 @@ fi
 echo "SEDI=$SEDI"
 echo "SEDI=$SEDI" >> "$GITHUB_ENV"
 
-# Zaikun 20260215: As of 20260215, the following is not needed. In addition, on wikdows-2025, it will make
-# gfortran fail due to missing DLL!
+# Zaikun 20260215: As of 20260215, the following is not needed. In addition, on windows-2025, it will 
+# make gfortran fail due to missing DLL!
 ## Make tools such as grep, make, and git available on Windows.
 #if [[ "$RUNNER_OS" = "Windows" ]] ; then
 #    PATH="$PATH:/c/Program Files/Git/usr/bin:/c/Program Files/Git/bin:/c/ProgramData/Chocolatey/bin"
