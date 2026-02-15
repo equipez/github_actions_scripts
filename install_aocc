@@ -7,8 +7,9 @@
 
 set -uo pipefail
 
-# Download URL for AOCC 5.1.0. See https://www.amd.com/fr/developer/aocc.html
-# Updated on 20260214
+# Download URL for AOCC 5.1.0. Updated on 20260214. See
+# https://www.amd.com/fr/developer/aocc.html
+# https://github.com/fortran-lang/setup-fortran/issues/188
 DOWNLOAD_URL="https://download.amd.com/developer/eula/aocc/aocc-5-1/aocc-compiler-5.1.0_1_amd64.deb"
 SHA256SUM="42f9ed0713a8fe269d5a5b40b1992a5380ff59b4441e58d38eb9f27df5bfe6df"
 
