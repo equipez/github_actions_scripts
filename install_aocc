@@ -122,6 +122,8 @@ echo -e "Add these lines to your ~/.bashrc or ~/.profile for persistence.\n"
 # Set environment variable for subsequent steps if running in GitHub Actions
 if [[ -n "${GITHUB_ENV:-}" ]]; then
     echo "PATH=$PATH:$AOCC_DIR/bin" >> "$GITHUB_ENV"
+    # The following line makes AOCC Flang available as 'aflang' in the subsequent steps.
+    sudo ln -s "$AOCC_DIR"/bin/flang "$AOCC_DIR"/bin/aflang
 fi
 
 # Cleanup is handled by trap on EXIT
