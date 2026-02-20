@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# This script installs the run-matlab-command utility, which allows you to run MATLAB commands in
+# a CI environment.
+# Usage: bash install_run_matlab_command
+
+if [[ "$RUNNER_OS" == "Linux" ]] ; then
+    OSCODE=glnxa64
+elif [[ "$RUNNER_OS" == "macOS" && "$(uname -m)" == "x86_64" ]] ; then
+    OSCODE=maci64
+elif [[ "$RUNNER_OS" == "macOS" && "$(uname -m)" == "arm64" ]] ; then
+    OSCODE=maca64
+else
+    echo "Unsupported OS: $RUNNER_OS with architecture $(uname -m)"
+    exit 1
+fi
+
+URL="https://ssd.mathworks.com/supportfiles/ci/run-matlab-command/v2/${OSCODE}/run-matlab-command"
+
+mkdir -p "$HOME"/tmp
+RMC_DIR=$(mktemp -d -p "$HOME"/tmp/)
+RMC="$RMC_DIR"/run-matlab-command
+
+wget -O "$RMC" "$URL"
+
+chmod +x "$RMC"
+
+echo "run-matlab-command is installed at $RMC_DIR"
+
+# Set environment variable for subsequent steps
+echo "$RMC_DIR" >> "$GITHUB_PATH"
+echo "The current GITHUB_PATH is:"
+cat "$GITHUB_PATH"
