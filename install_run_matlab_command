@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # This script installs the run-matlab-command utility, which allows you to run MATLAB commands in
-# a CI environment.
+# a CI environment. See https://github.com/matlab-actions/run-command/issues/53
 # Usage: bash install_run_matlab_command
 
 if [[ "$RUNNER_OS" == "Linux" ]] ; then
