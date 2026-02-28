@@ -24,7 +24,7 @@ if [[ "$GITHUB_ACTIONS" != "true" || "$RUNNER_ENVIRONMENT" != "github-hosted" ]]
         exit 0
     fi
 else
-    if [[ $(uname -s) == 'Darwin' ]] ; then  # macOS
+    if [[ "$(uname -s)" == Darwin ]] ; then  # macOS
         brew update || true
         brew install ncurses git
     else  # Assume Linux
@@ -33,7 +33,7 @@ else
     fi
 fi
 
-if [[ $(uname -s) == 'Darwin' ]] ; then  # macOS
+if [[ "$(uname -s)" == Darwin ]] ; then  # macOS
     ARCH=macos_arm  # LLVM does not provide macos_x86 flang binaries as of February 2026
 else  # Assume Linux
     ARCH=$(uname -m)
