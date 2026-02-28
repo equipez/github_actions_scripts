@@ -5,9 +5,42 @@
 # out the latest version" part works properly.
 VER_DFT=10.0.0
 
-# The working directory.
-DIR=$(mktemp -d)
-cd "$DIR" || exit 42
+# The installation may fail due to network issues, so we retry until it works. We retry for at most
+# $RETRY_MAX times with a delay of $RETRY_DELAY_SECONDS seconds between attempts.
+if [[ "$#" -ge 1 ]]; then
+    RETRY_MAX="$1"
+else
+    RETRY_MAX=5
+fi
+if [[ "$#" -ge 2 ]]; then
+    RETRY_DELAY_SECONDS="$2"
+else
+    RETRY_DELAY_SECONDS=10
+fi
+
+# Make a temp directory and move into it
+TMP_DIR="$(mktemp -d)"
+cleanup() {
+    # Only remove if it still exists
+    [[ -n "${TMP_DIR:-}" && -d "${TMP_DIR}" ]] && rm -rf -- "${TMP_DIR}"
+    TMP_DIR=""  # Prevent double cleanup
+}
+
+trap cleanup EXIT
+
+echo "--> Created temporary directory: ${TMP_DIR}"
+cd "${TMP_DIR}" || exit 1
+echo "--> Changed to ${TMP_DIR}"
+
+# Create a custom curl wrapper to enforce HTTP/1.1 and IPv4, with retries and timeouts.
+# Useful in CI environments with occasional network issues.
+cat >"$TMP_DIR/curl" <<'EOF'
+#!/usr/bin/env bash
+exec /usr/bin/curl --http1.1 -4 -L -C - --retry 5 --retry-connrefused --retry-delay 5 --no-keepalive --limit-rate 50M --connect-timeout 30 --max-time 1800 "$@"
+EOF
+chmod +x "$TMP_DIR/curl"
+export PATH="$TMP_DIR:$PATH"
+type curl
 
 # Find out the latest version.
 RELEASE="https://www.ghostscript.com/releases/index.html"
@@ -26,14 +59,28 @@ VER_DFT_NO_DOT=${VER_DFT//\./}
 URL=https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs"$VER_NO_DOT"/ghostscript-"$VER"-linux-x86_64.tgz
 URL_DFT=https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs"$VER_DFT_NO_DOT"/ghostscript-"$VER_DFT"-linux-x86_64.tgz
 
-TGZ=gs.tgz
+TGZ=$TMP_DIR/gs.tgz
 
-if wget "$URL" -O "$TGZ" > /dev/null 2>&1 ; then
+if curl -fL -o "${TGZ}" "${URL}" > /dev/null 2>&1 ; then
     NEWGS="ghostscript-$VER-linux-x86_64/gs-$VER_NO_DOT-linux-x86_64"
 else
     printf "******Failed to download the latest version.******\n******Will install the default version: %s******\n\n" "$VER_DFT"
-    wget "$URL_DFT" -O "$TGZ"
-    NEWGS="ghostscript-$VER_DFT-linux-x86_64/gs-$VER_DFT_NO_DOT-linux-x86_64"
+    RETRY_TIMES=0
+    while true; do
+        if curl -fL -o "${TGZ}" "${URL_DFT}" > /dev/null 2>&1 ; then
+            NEWGS="ghostscript-$VER_DFT-linux-x86_64/gs-$VER_DFT_NO_DOT-linux-x86_64"
+            break
+        fi
+        RETRY_TIMES=$((RETRY_TIMES + 1))
+        if [ $RETRY_TIMES -ge "$RETRY_MAX" ]; then
+            echo "Error: Installation failed after $RETRY_TIMES attempts." >&2
+            exit 1
+        else
+            echo "Retrying in $RETRY_DELAY_SECONDS seconds ... (Attempt: $RETRY_TIMES)"
+            rm -f -- "${TGZ}"
+            sleep "$RETRY_DELAY_SECONDS"
+        fi
+    done
 fi
 
 GS="$(command -v gs)"
@@ -46,7 +93,6 @@ if [[ -f "$GS" ]] ; then
     sudo mv "$GS" "$GS".bak
 fi
 sudo cp "$NEWGS" "$GS"
-rm -r "$DIR"
 
 gs -v
 command -v gs
