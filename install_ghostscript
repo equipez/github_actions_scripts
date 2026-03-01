@@ -64,16 +64,15 @@ VER_NO_DOT=${VER//\./}
 VER_DFT_NO_DOT=${VER_DFT//\./}
 
 # Download URL
-PKG_NAME=gs_"${VER}"_amd64
-URL=https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs"${VER_NO_DOT}"/"${PKG_NAME}"_snap.tgz
+URL=https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs"${VER_NO_DOT}"/gs_"${VER}"_amd64_snap.tgz
 URL_DFT=https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs"${VER_DFT_NO_DOT}"/ghostscript-"${VER_DFT}"-linux-x86_64.tgz
 
 TGZ=$TMP_DIR/gs.tgz
 
 if curl -fL -o "${TGZ}" "${URL}" > /dev/null 2>&1 ; then
     tar zxvf "${TGZ}"
-    ls -l "${PKG_NAME}"_snap/"${PKG_NAME}".snap
-    sudo snap install --devmode --dangerous "${PKG_NAME}"_snap/"${PKG_NAME}".snap
+    SNAP_PKG=$(find . -name "gs*.snap" | head -n 1)
+    sudo snap install --devmode --dangerous "${SNAP_PKG}"
 else
     printf "******Failed to download the latest version.******\n******Will install the default version: %s******\n\n" "$VER_DFT"
     RETRY_TIMES=0
