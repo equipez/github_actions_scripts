@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 # Usage: bash install_ghostscript
 
+if [[ "$GITHUB_ACTIONS" != "true" || "$RUNNER_ENVIRONMENT" != "github-hosted" || "$RUNNER_OS" != "Linux" ]]; then
+    echo ""
+    echo "Warning: This script is intended to run only in GitHub-hosted Linux runners. Skip execution." >&2
+    echo "It uses snap to install the latest version of ghostscript. If this is desirable, download the snap package and install it manually." >&2
+    echo ""
+    exit 0
+fi
+
 # Default version. This is the latest version as of 20220926. This should not matter if the "Find
 # out the latest version" part works properly.
 VER_DFT=10.0.0
@@ -65,7 +73,7 @@ TGZ=$TMP_DIR/gs.tgz
 if curl -fL -o "${TGZ}" "${URL}" > /dev/null 2>&1 ; then
     tar zxvf "${TGZ}"
     ls -l "${PKG_NAME}"_snap/"${PKG_NAME}".snap
-    sudo snap install "${PKG_NAME}"_snap/"${PKG_NAME}".snap
+    sudo snap install --dangerous "${PKG_NAME}"_snap/"${PKG_NAME}".snap
 else
     printf "******Failed to download the latest version.******\n******Will install the default version: %s******\n\n" "$VER_DFT"
     RETRY_TIMES=0
