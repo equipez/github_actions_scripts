@@ -56,24 +56,26 @@ VER_NO_DOT=${VER//\./}
 VER_DFT_NO_DOT=${VER_DFT//\./}
 
 # Download URL
-URL=https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs"$VER_NO_DOT"/ghostscript-"$VER"-linux-x86_64.tgz
-URL_DFT=https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs"$VER_DFT_NO_DOT"/ghostscript-"$VER_DFT"-linux-x86_64.tgz
+PKG_NAME=gs_"${VER}"_amd64
+URL=https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs"${VER_NO_DOT}"/"${PKG_NAME}"_snap.tgz
+URL_DFT=https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs"${VER_DFT_NO_DOT}"/ghostscript-"${VER_DFT}"-linux-x86_64.tgz
 
 TGZ=$TMP_DIR/gs.tgz
 
 if curl -fL -o "${TGZ}" "${URL}" > /dev/null 2>&1 ; then
-    NEWGS="ghostscript-$VER-linux-x86_64/gs-$VER_NO_DOT-linux-x86_64"
+    tar zxvf "${TGZ}"
+    ls -l "${PKG_NAME}"_snap/"${PKG_NAME}".snap
+    sudo snap install "${PKG_NAME}"_snap/"${PKG_NAME}".snap
 else
     printf "******Failed to download the latest version.******\n******Will install the default version: %s******\n\n" "$VER_DFT"
     RETRY_TIMES=0
     while true; do
         if curl -fL -o "${TGZ}" "${URL_DFT}" > /dev/null 2>&1 ; then
-            NEWGS="ghostscript-$VER_DFT-linux-x86_64/gs-$VER_DFT_NO_DOT-linux-x86_64"
             break
         fi
         RETRY_TIMES=$((RETRY_TIMES + 1))
         if [ $RETRY_TIMES -ge "$RETRY_MAX" ]; then
-            echo "Error: Installation failed after $RETRY_TIMES attempts." >&2
+            echo "Error: Downloading failed after $RETRY_TIMES attempts." >&2
             exit 1
         else
             echo "Retrying in $RETRY_DELAY_SECONDS seconds ... (Attempt: $RETRY_TIMES)"
@@ -81,18 +83,20 @@ else
             sleep "$RETRY_DELAY_SECONDS"
         fi
     done
-fi
 
-GS="$(command -v gs)"
-if [[ -z "$GS" ]] ; then
-    GS=/usr/bin/gs
-fi
+    GS="$(command -v gs)"
+    if [[ -z "$GS" ]] ; then
+        GS=/usr/bin/gs
+    fi
 
-tar zxvf "$TGZ"
-if [[ -f "$GS" ]] ; then
-    sudo mv "$GS" "$GS".bak
+    tar zxvf "$TGZ"
+    NEWGS="ghostscript-$VER_DFT-linux-x86_64/gs-$VER_DFT_NO_DOT-linux-x86_64"
+
+    if [[ -f "$GS" ]] ; then
+        sudo cp "$GS" "$GS".bak
+    fi
+    sudo cp "$NEWGS" "$GS"
 fi
-sudo cp "$NEWGS" "$GS"
 
 gs -v
 command -v gs
