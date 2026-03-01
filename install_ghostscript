@@ -70,7 +70,7 @@ URL_DFT=https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/
 
 TGZ=$TMP_DIR/gs.tgz
 
-if false && curl -fL -o "${TGZ}" "${URL}" > /dev/null 2>&1 ; then
+if curl -fL -o "${TGZ}" "${URL}" > /dev/null 2>&1 ; then
     tar zxvf "${TGZ}"
     ls -l "${PKG_NAME}"_snap/"${PKG_NAME}".snap
     sudo snap install --devmode --dangerous "${PKG_NAME}"_snap/"${PKG_NAME}".snap
