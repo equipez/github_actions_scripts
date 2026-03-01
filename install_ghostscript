@@ -73,7 +73,7 @@ TGZ=$TMP_DIR/gs.tgz
 if curl -fL -o "${TGZ}" "${URL}" > /dev/null 2>&1 ; then
     tar zxvf "${TGZ}"
     ls -l "${PKG_NAME}"_snap/"${PKG_NAME}".snap
-    sudo snap install --dangerous "${PKG_NAME}"_snap/"${PKG_NAME}".snap
+    sudo snap install --devmode --dangerous "${PKG_NAME}"_snap/"${PKG_NAME}".snap
 else
     printf "******Failed to download the latest version.******\n******Will install the default version: %s******\n\n" "$VER_DFT"
     RETRY_TIMES=0
