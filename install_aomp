@@ -2,8 +2,8 @@
 # Script to install the latest AOMP release for Ubuntu (amd64/x86_64)
 # Usage: bash install_aomp [RETRY_MAX] [RETRY_DELAY_SECONDS]
 #
-# N.B.: The most technical part is to download the correct .deb package from GitHub releases.
-# After that, installation is done via a simple invocation of apt.
+# N.B.: Check https://github.com/ROCm/aomp/blob/aomp-dev/docs/MANYLINUX.md before running this
+# script. Make sure that it is still the recommended installation method.
 
 set -uo pipefail
 
