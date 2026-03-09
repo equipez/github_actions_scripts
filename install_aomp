@@ -92,7 +92,7 @@ while true; do
     sudo mv "${PACKAGE_NAME}" "$AOMP_PARENT_DIR/"
     sudo ln -sf "${AOMP_PARENT_DIR}/${PACKAGE_NAME}" "${AOMP_DIR}"
     # Verify installation
-    if command -v $AOMP_DIR/bin/amdflang && $AOMP_DIR/bin/amdflang --version >/dev/null 2>&1; then
+    if command -v $AOMP_DIR/bin/amdflang >/dev/null 2>&1 && $AOMP_DIR/bin/amdflang --version >/dev/null 2>&1; then
         echo "--> Installed AOMP to ${AOMP_DIR}"
         export PATH="$PATH:$AOMP_DIR/bin"
         break
