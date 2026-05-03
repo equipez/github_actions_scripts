@@ -10,6 +10,28 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 bash "$SCRIPT_DIR"/misc_env
 bash "$SCRIPT_DIR"/misc_lib
 
+# Clean up disk space by removing unnecessary directories on GitHub-hosted Linux runners.
+if [[ "$RUNNER_OS" == "Linux" ]]; then
+    for dir in \
+        /usr/share/swift \
+        /usr/lib/jvm \
+        /usr/local/share/powershell \
+        /usr/local/julia* \
+        /usr/local/share/chromium \
+        /opt/microsoft \
+        /opt/az \
+        /usr/share/dotnet \
+        /usr/local/.ghcup \
+        /usr/local/lib/android \
+        /opt/google ;
+    do
+        du -hs "$dir" || true
+        sudo rm -rf "$dir"
+    done
+    docker system prune -af || true
+    docker builder prune -af || true
+fi
+
 # The following line resizes the swap of GitHub-hosted Linux runners.
 # As of 20250727, this is needed by profiling PRIMA on MATLAB R2025a, or the GitHub-hosted runners
 # may shut down due to memory starvation. This did not happen with earlier versions of MATLAB.
