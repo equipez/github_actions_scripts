@@ -36,8 +36,8 @@ else
 fi
 
 # Allow update to fail (|| true) but proceed to install
-sudo apt update || true
-sudo apt install -y curl
+sudo apt-get update || true
+sudo apt-get install -y curl
 
 # Make a temp directory and move into it
 TMP_DIR="$(mktemp -d)"
@@ -81,7 +81,7 @@ while true; do
     else
         # Install the package (apt resolves dependencies; dpkg alone does not)
         echo "--> Installing the package..."
-        sudo apt install -y "${FILENAME}"
+        sudo apt-get install -y "${FILENAME}"
 
         # Verify installation
         ADIR="$(find "${AOCC_DIR}" -maxdepth 1 -name "aocc-compiler*" -type d -print | sort -V | tail -n 1)"

@@ -5,8 +5,8 @@
 set -euo pipefail
 
 # Update package lists and install prerequisites
-sudo apt update || true  # Ignore errors from apt update
-sudo apt install -y curl gpg environment-modules
+sudo apt-get update || true  # Ignore errors from apt update
+sudo apt-get install -y curl gpg environment-modules
 
 # Add Arm repository and install arm-toolchain-for-linux
 VERSION_YEAR=$( (lsb_release -rs 2>/dev/null || (. /etc/os-release && echo "$VERSION_ID")) | cut -d. -f1 )  # e.g., "24" for Ubuntu 24.04
@@ -18,7 +18,7 @@ echo "deb [signed-by=/usr/share/keyrings/obs-oss-arm-com.gpg] https://developer.
     | sudo tee /etc/apt/sources.list.d/obs-oss-arm-com.list
 
 # Update package lists and install the toolchain
-sudo apt update && sudo apt install -y arm-toolchain-for-linux
+sudo apt-get update && sudo apt-get install -y arm-toolchain-for-linux
 
 # Initialize module command
 if [ -f /etc/profile.d/modules.sh ]; then

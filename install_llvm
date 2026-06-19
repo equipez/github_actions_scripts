@@ -29,7 +29,7 @@ else  # Assume Ubuntu
     echo "We assume that we are on Ubuntu."
 
     # Install prerequisites.
-    sudo apt update || true && sudo apt install -y curl gnupg
+    sudo apt-get update || true && sudo apt-get install -y curl gnupg
 
     # According to "LLVM Release Schedule" at https://llvm.org, we assume that the version is
     # updated every six months, in March and September. The version number in September 2025 is 21.
@@ -56,8 +56,8 @@ else  # Assume Ubuntu
         | sudo tee /etc/apt/sources.list.d/llvm-toolchain-${VERSION_NUMBER}.list
 
     # Install the packages (clang is needed even if we use only flang).
-    sudo apt update
-    sudo apt install -y llvm-${VERSION_NUMBER} flang-${VERSION_NUMBER} clang-${VERSION_NUMBER}  lld-${VERSION_NUMBER}
+    sudo apt-get update
+    sudo apt-get install -y llvm-${VERSION_NUMBER} flang-${VERSION_NUMBER} clang-${VERSION_NUMBER}  lld-${VERSION_NUMBER}
 
     # Verify the installation
     for TOOL in flang clang lld; do

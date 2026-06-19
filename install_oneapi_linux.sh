@@ -14,11 +14,11 @@ echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt
     | sudo tee /etc/apt/sources.list.d/oneAPI.list
 
 # installation
-sudo apt update
-#sudo apt install intel-basekit intel-hpckit  # Instead of this line, the following line seems to suffice
-sudo apt install -y intel-oneapi-common-vars intel-oneapi-compiler-fortran
+sudo apt-get update
+#sudo apt-get install intel-basekit intel-hpckit  # Instead of this line, the following line seems to suffice
+sudo apt-get install -y intel-oneapi-common-vars intel-oneapi-compiler-fortran
 installer_exit_code=$?
-sudo apt clean  # Remove the .deb
+sudo apt-get clean  # Remove the .deb
 
 # Run the script that sets the necessary environment variables and then dump them to $GITHUB_ENV
 # so that they are available in subsequent steps.

@@ -32,8 +32,8 @@ else
 fi
 
 # Allow update to fail (|| true) but proceed to install
-sudo apt update || true
-sudo apt install -y curl jq libelf-dev libzstd-dev  # jq needed for GitHub API parsing
+sudo apt-get update || true
+sudo apt-get install -y curl jq libelf-dev libzstd-dev  # jq needed for GitHub API parsing
 
 # Make a temp directory and move into it
 TMP_DIR="$(mktemp -d)"

@@ -28,8 +28,8 @@ else
         brew update || true
         brew install ncurses git
     else  # Assume Linux
-        sudo apt update || true
-        sudo apt install -y libncurses* git  # libncurses* needed for libtinfo.so
+        sudo apt-get update || true
+        sudo apt-get install -y libncurses* git  # libncurses* needed for libtinfo.so
     fi
 fi
 

@@ -12,8 +12,8 @@ if [[ "$GITHUB_ACTIONS" != "true" || "$RUNNER_ENVIRONMENT" != "github-hosted" ]]
 fi
 
 if [[ "$RUNNER_OS" == "Linux" ]] ; then
-    sudo apt update || true
-    sudo apt install -y gdb make cmake ninja-build execstack
+    sudo apt-get update || true
+    sudo apt-get install -y gdb make cmake ninja-build execstack
     gdb --version
     make --version
     cmake --version
@@ -26,7 +26,7 @@ if [[ "$RUNNER_OS" == "Linux" ]] ; then
     # 2. Without libgl1, MATLAB R2025a gets stuck when executing `saveas`.
     # See https://github.com/zequipe/test_matlab/blob/master/.github/workflows/dependencies.yml
     # and https://github.com/matlab-actions/setup-matlab/issues/154 for more details.
-    sudo apt install -y x11-xkb-utils libgl1
+    sudo apt-get install -y x11-xkb-utils libgl1
     dpkg -l x11-xkb-utils libgl1
 elif [[ "$RUNNER_OS" == "macOS" ]] ; then
     brew update || true
